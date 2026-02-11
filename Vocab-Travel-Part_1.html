@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Vocabulary - Part 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-color: #f4f1ee;
+    --text-color: #3e2723;
+    --accent-brown: #5d4037;
+    --accent-terracotta: #a0522d;
+    --card-bg: #ffffff;
+    --border-color: #d7ccc8;
+  }
+
+  body { 
+    font-family: 'Noto Serif JP', serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-color);
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+  }
+
+  .container {
+    width: 90vw;
+    max-width: 600px;
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--bg-color);
+    padding-bottom: 10px;
+  }
+
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin: 0; color: var(--accent-terracotta); }
+
+  .settings { font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+  .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--accent-terracotta); }
+  input:checked + .slider:before { transform: translateX(20px); }
+
+  .progress-bar { height: 4px; background: #e0e0e0; margin-bottom: 20px; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent-terracotta); width: 0%; transition: width 0.3s; }
+
+  .question-area { text-align: center; margin-bottom: 30px; }
+  .japanese-text { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; display: block; }
+  .category-tag { font-size: 0.8rem; color: var(--accent-brown); text-transform: uppercase; letter-spacing: 1px; }
+
+  .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .choice-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    color: var(--text-color);
+  }
+  .choice-btn:hover { background-color: #fdfaf8; border-color: var(--accent-terracotta); }
+  .choice-btn.selected { background-color: var(--accent-terracotta) !important; color: white; border-color: var(--accent-terracotta); }
+  .choice-btn.correct { background-color: #4e6e4e !important; color: white; }
+  .choice-btn.wrong { background-color: #a66e6e !important; color: white; }
+
+  .footer-actions { margin-top: 30px; display: flex; flex-direction: column; gap: 15px; align-items: center; }
+  .main-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 30px;
+    border: none;
+    background-color: var(--accent-brown);
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .main-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+  .print-link { font-size: 0.8rem; text-decoration: underline; cursor: pointer; color: var(--accent-brown); background: none; border: none; }
+
+  .print-header { display: none; }
+  #printWorksheet { display: none; }
+
+  @media print {
+    body { background: white; color: black; display: block; padding: 0; }
+    .container { display: none !important; }
+    
+    .print-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: baseline; 
+      border-bottom: 2px solid #000; 
+      margin-bottom: 20px; 
+      padding-bottom: 5px;
+    }
+    .print-header h1 { font-size: 1.6rem; color: black; }
+    .name-box { font-size: 0.9rem; }
+
+    #printWorksheet { display: block; width: 100%; }
+    .ws-item { 
+      margin-bottom: 15px; 
+      page-break-inside: avoid; 
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 10px;
+    }
+    .ws-question { font-size: 1rem; font-weight: bold; margin-bottom: 5px; }
+    .ws-category { font-size: 0.7rem; color: #666; font-weight: normal; margin-left: 10px; }
+    .ws-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 20px; }
+    .ws-choice { font-size: 0.9rem; display: flex; align-items: center; }
+    .checkbox { width: 12px; height: 12px; border: 1px solid #000; display: inline-block; margin-right: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="quizContainer">
+  <header>
+    <h1>Travel English: Part 1</h1>
+    <div class="settings">
+      <span>Audio</span>
+      <label class="switch">
+        <input type="checkbox" id="audioToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+  </header>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div id="gameBody">
+    <div class="question-area">
+      <span class="category-tag" id="categoryTag">Category</span>
+      <span class="japanese-text" id="targetJapanese">Loading...</span>
+    </div>
+
+    <div class="choices-grid" id="choicesGrid"></div>
+
+    <div class="footer-actions">
+      <button class="main-btn" id="actionBtn" onclick="handleAction()" disabled>Check Answer</button>
+      <button class="print-link" onclick="window.print()">Print Worksheet (Part 1)</button>
+    </div>
+  </div>
+</div>
+
+<div id="printWorksheet">
+  <div class="print-header">
+    <h1>Travel English: Part 1 (Airport, Documents & Baggage)</h1>
+    <div class="name-box">Date: ________ Name: ________________</div>
+  </div>
+  <div id="wsList"></div>
+</div>
+
+<script>
+const rawData = [
+    // 1. At the Airport
+    { jp: "ターミナル", en: "terminal", cat: "At the Airport" },
+    { jp: "チェックインカウンター", en: "check-in counter", cat: "At the Airport" },
+    { jp: "搭乗ゲート", en: "boarding gate / gate", cat: "At the Airport" },
+    { jp: "入国審査", en: "Immigration / Passport control", cat: "At the Airport" },
+    { jp: "税関", en: "Customs", cat: "At the Airport" },
+    { jp: "保安検査", en: "security check", cat: "At the Airport" },
+    { jp: "搭乗券", en: "boarding pass", cat: "At the Airport" },
+    // 2. Tickets & Travel Documents
+    { jp: "パスポート", en: "Passport", cat: "Tickets & Documents" },
+    { jp: "ビザ（査証）", en: "Visa", cat: "Tickets & Documents" },
+    { jp: "eチケット", en: "e-ticket", cat: "Tickets & Documents" },
+    { jp: "予約番号", en: "reservation number / booking reference", cat: "Tickets & Documents" },
+    { jp: "座席番号", en: "seat number", cat: "Tickets & Documents" },
+    // 3. Baggage
+    { jp: "機内持ち込み手荷物", en: "carry-on baggage", cat: "Baggage" },
+    { jp: "受託手荷物", en: "checked luggage", cat: "Baggage" },
+    { jp: "スーツケース", en: "suitcase", cat: "Baggage" },
+    { jp: "バックパック", en: "backpack", cat: "Baggage" },
+    { jp: "手荷物受取所", en: "baggage claim", cat: "Baggage" },
+    { jp: "遺失物カウンター", en: "lost-and-found counter", cat: "Baggage" },
+    { jp: "割れ物", en: "fragile items", cat: "Baggage" }
+];
+
+let currentIndex = 0;
+let selectedAnswer = "";
+let isChecked = false;
+const quizItems = [...rawData].sort(() => Math.random() - 0.5);
+
+function speak(text) {
+    if (!document.getElementById('audioToggle').checked) return;
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = "en-US";
+    uttr.rate = 0.9;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(uttr);
+}
+
+function generateWorksheet() {
+    const wsList = document.getElementById('wsList');
+    wsList.innerHTML = "";
+    quizItems.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = "ws-item";
+        let options = [item.en];
+        while(options.length < 4) {
+            let r = rawData[Math.floor(Math.random() * rawData.length)].en;
+            if(!options.includes(r)) options.push(r);
+        }
+        options.sort(() => Math.random() - 0.5);
+        itemDiv.innerHTML = `
+          <div class="ws-question">${index + 1}. ${item.jp} <span class="ws-category">[${item.cat}]</span></div>
+          <div class="ws-choices">
+            ${options.map(opt => `<div class="ws-choice"><span class="checkbox"></span> ${opt}</div>`).join('')}
+          </div>
+        `;
+        wsList.appendChild(itemDiv);
+    });
+}
+
+function loadQuestion() {
+    const item = quizItems[currentIndex];
+    isChecked = false;
+    selectedAnswer = "";
+    document.getElementById('progressFill').style.width = `${(currentIndex / quizItems.length) * 100}%`;
+    document.getElementById('categoryTag').textContent = item.cat;
+    document.getElementById('targetJapanese').textContent = item.jp;
+    const actionBtn = document.getElementById('actionBtn');
+    actionBtn.textContent = "Check Answer";
+    actionBtn.disabled = true;
+    let options = [item.en];
+    while(options.length < 4) {
+        let randomWord = rawData[Math.floor(Math.random() * rawData.length)].en;
+        if(!options.includes(randomWord)) options.push(randomWord);
+    }
+    options.sort(() => Math.random() - 0.5);
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = "";
+    options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = "choice-btn";
+        btn.textContent = opt;
+        btn.onclick = () => selectOption(opt, btn);
+        grid.appendChild(btn);
+    });
+    generateWorksheet();
+}
+
+function selectOption(word, btn) {
+    if (isChecked) return;
+    selectedAnswer = word;
+    document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('actionBtn').disabled = false;
+    speak(word);
+}
+
+function handleAction() {
+    const item = quizItems[currentIndex];
+    const actionBtn = document.getElementById('actionBtn');
+    if (!isChecked) {
+        isChecked = true;
+        const buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(btn => {
+            if (btn.textContent === item.en) btn.classList.add('correct');
+            else if (btn.textContent === selectedAnswer) btn.classList.add('wrong');
+        });
+        actionBtn.textContent = (selectedAnswer === item.en) ? "Correct! Next →" : "Incorrect. Next →";
+    } else {
+        currentIndex++;
+        if (currentIndex < quizItems.length) loadQuestion();
+        else showResult();
+    }
+}
+
+function showResult() {
+    document.getElementById('gameBody').innerHTML = `
+        <div style="text-align:center; padding: 40px 0;">
+            <h2 style="color:var(--accent-terracotta)">Part 1 Completed!</h2>
+            <p>空港、書類、手荷物の英単語をマスターしました。</p>
+            <button class="main-btn" onclick="location.reload()">Restart Part 1</button>
+        </div>
+    `;
+}
+
+loadQuestion();
+</script>
+</body>
+</html>
