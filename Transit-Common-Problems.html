@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airport English Master - 3 Steps</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&family=Playfair+Display:wght@600&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-color: #f4f1ee;
+    --text-color: #3e2723;
+    --accent-brown: #5d4037;
+    --accent-terracotta: #a0522d;
+    --card-bg: #ffffff;
+    --border-color: #d7ccc8;
+    --passenger-blue: #e3f2fd;
+  }
+
+  body { 
+    font-family: 'Noto Serif JP', serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-color);
+    margin: 0; 
+    padding: 20px 0;
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    min-height: 100vh; 
+  }
+
+  /* メインナビゲーション */
+  .main-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 90vw;
+    max-width: 600px;
+  }
+  .nav-tab {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: #d7ccc8;
+    color: var(--accent-brown);
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: 0.3s;
+  }
+  .nav-tab.active {
+    background: var(--accent-terracotta);
+    color: white;
+  }
+
+  .activity-container {
+    display: none;
+    width: 90vw;
+    max-width: 600px;
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    box-sizing: border-box;
+  }
+  .activity-container.active { display: block; }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--bg-color);
+    padding-bottom: 10px;
+  }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin: 0; color: var(--accent-terracotta); }
+  .progress-bar { height: 4px; background: #e0e0e0; margin-bottom: 20px; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent-terracotta); width: 0%; transition: width 0.3s; }
+  
+  .japanese-text { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; display: block; text-align: center; }
+  .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .choice-btn {
+    background: none; border: 1px solid var(--border-color); padding: 15px; border-radius: 8px;
+    cursor: pointer; font-size: 0.95rem; color: var(--text-color); transition: 0.2s;
+  }
+  .choice-btn.correct { background-color: #4e6e4e !important; color: white; }
+  .choice-btn.wrong { background-color: #a66e6e !important; color: white; }
+  .choice-btn.selected { background-color: var(--accent-terracotta) !important; color: white; }
+
+  .main-btn {
+    width: 100%; padding: 15px; border-radius: 30px; border: none;
+    background-color: var(--accent-brown); color: white; font-size: 1.1rem; cursor: pointer; font-weight: bold;
+  }
+  .main-btn:disabled { background-color: #ccc; }
+
+  /* Role-Play用 */
+  .chat-box { 
+    font-family: 'Noto Sans JP', sans-serif; min-height: 400px; max-height: 500px; 
+    overflow-y: auto; border: 1px solid #eee; padding: 15px; display: flex; 
+    flex-direction: column; gap: 15px; background: #fff; border-radius: 10px; margin-bottom: 20px;
+  }
+  .bubble { max-width: 85%; padding: 12px 16px; border-radius: 15px; line-height: 1.5; border: 1px solid #e0e0e0; }
+  .staff { align-self: flex-start; background: #fff; border-bottom-left-radius: 2px; }
+  .passenger { align-self: flex-end; background: var(--passenger-blue); border-bottom-right-radius: 2px; }
+  .blank { display: inline-block; background: #cfd8dc; width: 80px; height: 1.2em; vertical-align: middle; border-radius: 4px; }
+  .sub-nav { display: flex; gap: 5px; margin-bottom: 15px; }
+  .sub-nav-btn { flex: 1; padding: 8px; border: none; background: #eee; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
+  .sub-nav-btn.active { background: var(--accent-brown); color: white; }
+</style>
+</head>
+<body>
+
+<nav class="main-nav">
+  <button class="nav-tab active" onclick="showActivity(1)">1. Vocabulary</button>
+  <button class="nav-tab" onclick="showActivity(2)">2. Phrases</button>
+  <button class="nav-tab" onclick="showActivity(3)">3. Role-Play</button>
+</nav>
+
+<div id="act1" class="activity-container active">
+  <header><h1>Vocab Quiz</h1></header>
+  <div class="progress-bar"><div class="progress-fill" id="prog1"></div></div>
+  <div id="gameBody1">
+    <div class="japanese-text" id="targetJp1">Loading...</div>
+    <div class="choices-grid" id="grid1"></div>
+    <button class="main-btn" id="btn1" onclick="handleVocabAction()" disabled style="margin-top:20px;">Check Answer</button>
+  </div>
+</div>
+
+<div id="act2" class="activity-container">
+  <header><h1>Phrase Training</h1></header>
+  <div class="progress-bar"><div class="progress-fill" id="prog2"></div></div>
+  <div id="gameBody2">
+    <div class="japanese-text" id="targetJp2" style="font-size:1.1rem; color:#666;">日本語訳</div>
+    <div id="enSentence2" style="font-size:1.4rem; font-weight:700; text-align:center; margin:20px 0;">English...</div>
+    <div id="hintArea2" style="display:none;"><div class="choices-grid" id="grid2"></div></div>
+    <button class="main-btn" id="hintBtn2" onclick="showPhraseHint()" style="background:none; border:1px solid var(--accent-brown); color:var(--accent-brown);">💡 ヒントを表示</button>
+    <button class="main-btn" id="nextBtn2" onclick="nextPhrase()" style="display:none;">Next →</button>
+  </div>
+</div>
+
+<div id="act3" class="activity-container">
+  <div class="sub-nav">
+    <button class="sub-nav-btn active" onclick="switchDialog(0)">#1 Missed</button>
+    <button class="sub-nav-btn" onclick="switchDialog(1)">#2 Gate</button>
+    <button class="sub-nav-btn" onclick="switchDialog(2)">#3 Luggage</button>
+  </div>
+  <div class="chat-box" id="chatBox3"></div>
+  <button class="main-btn" id="actionBtn3" onclick="handleRoleAction()">Start Dialogue</button>
+</div>
+
+<script>
+// --- Common ---
+function speak(text) {
+  const uttr = new SpeechSynthesisUtterance(text);
+  uttr.lang = "en-US";
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(uttr);
+}
+
+function showActivity(num) {
+  document.querySelectorAll('.activity-container').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', i === num-1));
+  document.getElementById('act' + num).classList.add('active');
+}
+
+// --- Step 1: Vocab Logic ---
+const vocabData = [
+  { jp: "フライトの遅延", en: "flight delay" }, { jp: "フライトの欠航", en: "flight cancellation" },
+  { jp: "乗り継ぎに失敗する", en: "missed connection" }, { jp: "搭乗ゲート変更", en: "gate change" },
+  { jp: "荷物の紛失", en: "lost luggage" }, { jp: "言葉の問題", en: "language problem" }
+];
+let vIdx = 0, vSelected = "", vChecked = false, vItems = [...vocabData].sort(() => Math.random() - 0.5);
+
+function loadVocab() {
+  vChecked = false; vSelected = "";
+  const item = vItems[vIdx];
+  document.getElementById('prog1').style.width = `${(vIdx / vItems.length) * 100}%`;
+  document.getElementById('targetJp1').textContent = item.jp;
+  const btn = document.getElementById('btn1');
+  btn.textContent = "Check Answer"; btn.disabled = true;
+
+  let opts = [item.en];
+  while(opts.length < 4) {
+    let r = vocabData[Math.floor(Math.random() * vocabData.length)].en;
+    if(!opts.includes(r)) opts.push(r);
+  }
+  opts.sort(() => Math.random() - 0.5);
+  const grid = document.getElementById('grid1'); grid.innerHTML = "";
+  opts.forEach(opt => {
+    const b = document.createElement('button'); b.className = "choice-btn"; b.textContent = opt;
+    b.onclick = () => { if(vChecked) return; vSelected = opt; 
+      document.querySelectorAll('#grid1 .choice-btn').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected'); btn.disabled = false; speak(opt); };
+    grid.appendChild(b);
+  });
+}
+
+function handleVocabAction() {
+  const item = vItems[vIdx], btn = document.getElementById('btn1');
+  if(!vChecked) {
+    vChecked = true;
+    document.querySelectorAll('#grid1 .choice-btn').forEach(b => {
+      if(b.textContent === item.en) b.classList.add('correct');
+      else if(b.textContent === vSelected) b.classList.add('wrong');
+    });
+    btn.textContent = (vSelected === item.en) ? "Correct! Next →" : "Incorrect. Next →";
+  } else {
+    vIdx++; if(vIdx < vItems.length) loadVocab(); else document.getElementById('gameBody1').innerHTML = "<h2>Step 1 Clear!</h2>";
+  }
+}
+
+// --- Step 2: Phrase Logic ---
+const phraseData = [
+  { jp: "フライトが遅れています。", pre: "My flight is ", post: ".", ans: "delayed", others: ["missed", "cancelled"] },
+  { jp: "乗り継ぎ便に間に合いませんでした。", pre: "I ", post: " my connection.", ans: "missed", others: ["lost", "made"] },
+  { jp: "荷物が届いていません。", pre: "My ", post: " did not arrive.", ans: "luggage", others: ["form", "visa"] }
+];
+let pIdx2 = 0, pAns2 = false;
+
+function loadPhrase() {
+  pAns2 = false; const item = phraseData[pIdx2];
+  document.getElementById('prog2').style.width = `${(pIdx2 / phraseData.length) * 100}%`;
+  document.getElementById('targetJp2').textContent = item.jp;
+  document.getElementById('enSentence2').innerHTML = `${item.pre}<span class="blank" id="blank2">?</span>${item.post}`;
+  document.getElementById('hintArea2').style.display = 'none';
+  document.getElementById('hintBtn2').style.display = 'block';
+  document.getElementById('nextBtn2').style.display = 'none';
+
+  const opts = [item.ans, ...item.others].sort(() => Math.random() - 0.5);
+  const grid = document.getElementById('grid2'); grid.innerHTML = "";
+  opts.forEach(opt => {
+    const b = document.createElement('button'); b.className = "choice-btn"; b.textContent = opt;
+    b.onclick = () => { if(pAns2) return; pAns2 = true;
+      b.classList.add(opt === item.ans ? 'correct' : 'wrong');
+      document.getElementById('blank2').textContent = item.ans;
+      if(opt !== item.ans) document.querySelectorAll('#grid2 .choice-btn').forEach(x => {if(x.textContent===item.ans) x.classList.add('correct');});
+      speak(item.pre + item.ans + item.post); document.getElementById('nextBtn2').style.display = 'block';
+    };
+    grid.appendChild(b);
+  });
+}
+function showPhraseHint() { document.getElementById('hintArea2').style.display = 'block'; document.getElementById('hintBtn2').style.display = 'none'; }
+function nextPhrase() { pIdx2++; if(pIdx2 < phraseData.length) loadPhrase(); else document.getElementById('gameBody2').innerHTML = "<h2>Step 2 Clear!</h2>"; }
+
+// --- Step 3: Role-Play Logic ---
+const dialogues = [
+  { steps: [
+    { r: "Passenger", en: "Excuse me, I <span class='blank'></span> my connection.", ans: "missed", jp: "すみません、乗り継ぎ便に間に合いませんでした。" },
+    { r: "Staff", en: "What is your next <span class='blank'></span>?", ans: "destination", jp: "次の目的地はどこですか？" },
+    { r: "Passenger", en: "I’m going to <span class='blank'></span>.", ans: "Hanoi", jp: "ハノイ行きです。" },
+    { r: "Staff", en: "I will rebook your <span class='blank'></span>. Please wait.", ans: "flight", jp: "フライトを変更します。少々お待ちください。" }
+  ]},
+  { steps: [
+    { r: "Passenger", en: "Has the <span class='blank'></span> changed?", ans: "gate", jp: "ゲートは変更されましたか？" },
+    { r: "Staff", en: "Yes, it has moved to Gate 45.", jp: "はい、45番ゲートに変更されました。" },
+    { r: "Passenger", en: "Thank you <span class='blank'></span>.", ans: "very much", jp: "ありがとうございます。" }
+  ]},
+  { steps: [
+    { r: "Passenger", en: "My <span class='blank'></span> did not arrive.", ans: "luggage", jp: "荷物が届いていません。" },
+    { r: "Staff", en: "Did you <span class='blank'></span> from another flight?", ans: "transfer", jp: "他のフライトから乗り継ぎましたか？" },
+    { r: "Passenger", en: "Yes, I <span class='blank'></span>.", ans: "did", jp: "はい、しました。" },
+    { r: "Staff", en: "Please fill out this <span class='blank'></span>.", ans: "form", jp: "この用紙をご記入ください。" }
+  ]}
+];
+let dIdx3 = 0, sIdx3 = 0, waiting3 = false;
+
+function switchDialog(n) {
+  dIdx3 = n; sIdx3 = 0; waiting3 = false;
+  document.querySelectorAll('.sub-nav-btn').forEach((b, i) => b.classList.toggle('active', i === n));
+  document.getElementById('chatBox3').innerHTML = ""; document.getElementById('actionBtn3').textContent = "Start Dialogue";
+}
+
+function handleRoleAction() {
+  const current = dialogues[dIdx3], btn = document.getElementById('actionBtn3');
+  if (sIdx3 >= current.steps.length) { switchDialog(dIdx3); return; }
+  const step = current.steps[sIdx3];
+  const hasBlank = step.en.includes("blank");
+
+  if (hasBlank && !waiting3) {
+    addBubble(step.r, step.en, step.jp);
+    btn.textContent = "Check Answer"; waiting3 = true;
+  } else {
+    if(hasBlank) {
+      const bbls = document.querySelectorAll('.bubble');
+      const last = bbls[bbls.length - 1].querySelector('.en-text');
+      last.innerHTML = step.en.replace("<span class='blank'></span>", `<strong style="color:var(--accent-terracotta); border-bottom:2px solid;">${step.ans}</strong>`);
+    } else { addBubble(step.r, step.en, step.jp); }
+    waiting3 = false; sIdx3++;
+    btn.textContent = (sIdx3 >= current.steps.length) ? "Finish / Restart" : "Next Step";
+  }
+}
+
+function addBubble(role, en, jp) {
+  const box = document.getElementById('chatBox3'), div = document.createElement('div');
+  div.className = `bubble ${role.toLowerCase() === 'staff' ? 'staff' : 'passenger'}`;
+  div.innerHTML = `<small><b>${role}</b></small><div class="en-text" style="margin:5px 0;">${en}</div><small style="color:#666; border-top:1px solid #eee; display:block; padding-top:3px;">${jp}</small>`;
+  box.appendChild(div); box.scrollTop = box.scrollHeight;
+}
+
+window.onload = () => { loadVocab(); loadPhrase(); switchDialog(0); };
+</script>
+</body>
+</html>

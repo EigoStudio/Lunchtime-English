@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Mastery - Extended Dialogue</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #f0f2f5; --hamano: #e3f2fd; --officer: #ffffff; --accent: #1a237e; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; }
+  .container { width: 100%; max-width: 600px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  .nav { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+  .nav-btn { flex: 1; min-width: 100px; padding: 10px; border: none; background: #e0e0e0; border-radius: 5px; cursor: pointer; font-size: 0.75rem; font-weight: bold; margin-bottom: 2px; }
+  .nav-btn.active { background: var(--accent); color: white; }
+  .chat-box { min-height: 500px; max-height: 600px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; background: #f9f9f9; border-radius: 10px; }
+  .bubble { max-width: 85%; padding: 12px; border-radius: 12px; line-height: 1.5; font-size: 0.95rem; border: 1px solid #e0e0e0; }
+  .officer { align-self: flex-start; background: var(--officer); border-bottom-left-radius: 2px; }
+  .hamano { align-self: flex-end; background: var(--hamano); border-color: #bbdefb; border-bottom-right-radius: 2px; }
+  .role-name { font-size: 0.7rem; font-weight: bold; color: #555; margin-bottom: 4px; display: block; }
+  .jp { font-size: 0.8rem; color: #666; display: block; margin-top: 5px; border-top: 1px solid #eee; padding-top: 3px; }
+  .blank { display: inline-block; background: #b0bec5; min-width: 60px; height: 1.1em; vertical-align: middle; border-radius: 3px; margin: 0 2px; }
+  .btn { width: 100%; padding: 16px; border: none; background: var(--accent); color: white; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+  strong.ans { color: #d32f2f; text-decoration: underline; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="nav">
+    <button class="nav-btn active" onclick="switchPart(0)">1: Entry</button>
+    <button class="nav-btn" onclick="switchPart(1)">2: Business</button>
+    <button class="nav-btn" onclick="switchPart(2)">3: Residence</button>
+    <button class="nav-btn" onclick="switchPart(3)">4: Photo</button>
+    <button class="nav-btn" onclick="switchPart(4)">5: Customs</button>
+    <button class="nav-btn" onclick="switchPart(5)">6: Food Check</button>
+  </div>
+  
+  <h4 id="partTitle" style="text-align:center; margin-top:0; color:var(--accent);">1. Passport Control</h4>
+  <div class="chat-box" id="chatBox"></div>
+  <div class="controls">
+    <button class="btn" id="actionBtn" onclick="handleAction()">Start Dialogue</button>
+  </div>
+</div>
+
+<script>
+const parts = [
+  {
+    title: "1. Passport & Visa Check",
+    steps: [
+      { role: "Officer", en: "Good afternoon. May I <span class='blank'></span> your <span class='blank'></span> and <span class='blank'></span>, please?", ans: ["see", "passports", "visas"], jp: "こんにちは。お二人のパスポートとビザを拝見できますか？" },
+      { role: "Hamano", en: "Good afternoon. <span class='blank'></span> <span class='blank'></span> are. This is for me, and this is for my <span class='blank'></span>.", ans: ["Here", "they", "daughter"], jp: "こんにちは。こちらにあります。私と娘の分です。" }
+    ]
+  },
+  {
+    title: "2. Purpose of Visit & Business",
+    steps: [
+      { role: "Officer", en: "Thank you. What is the <span class='blank'></span> of your <span class='blank'></span>?", ans: ["purpose", "visit"], jp: "ありがとうございます。入国の目的は何ですか？" },
+      { role: "Hamano", en: "I'm a Beauty Consultant, and I'm <span class='blank'></span> for <span class='blank'></span>.", ans: ["relocating", "business"], jp: "私は、ビューティーアドバイザーで、ビジネスのために移住します。" },
+      { role: "Hamano", en: "My daughter is <span class='blank'></span> <span class='blank'></span>. She will start <span class='blank'></span> <span class='blank'></span> here in September.", ans: ["joining", "me", "primary", "school"], jp: "娘も一緒です。彼女は9月からこちらの小学校に通い始めます。" }
+    ]
+  },
+  {
+    title: "3. Documents & Residence",
+    steps: [
+      { role: "Officer", en: "I see. Do you have any business <span class='blank'></span> and your daughter's school <span class='blank'></span> papers?", ans: ["documents", "enrollment"], jp: "なるほど。ビジネスに関する書類とお嬢様の入学書類はお持ちですか？" },
+      { role: "Hamano", en: "Yes, I have <span class='blank'></span> all <span class='blank'></span> <span class='blank'></span>.", ans: ["them", "right", "here"], jp: "はい、すべてこちらに揃っています。" },
+      { role: "Officer", en: "Where <span class='blank'></span> you be <span class='blank'></span>?", ans: ["will", "staying"], jp: "どこに滞在する予定ですか？" },
+      { role: "Hamano", en: "In an <span class='blank'></span> in the Tay Ho district, <span class='blank'></span>.", ans: ["apartment", "Hanoi"], jp: "ハノイのタイホー地区にあるアパートです。" }
+    ]
+  },
+  {
+    title: "4. Camera & Processing",
+    steps: [
+      { role: "Officer", en: "Thank you. Now, look at the <span class='blank'></span>, please. <span class='blank'></span> you first, Ma'am.", ans: ["camera", "Just"], jp: "ありがとうございます。では、カメラを見てください。まずはお母様だけお願いします。" },
+      { role: "Officer", en: "Now, your daughter's <span class='blank'></span>. Sweetie, can you look at the camera for a <span class='blank'></span>?", ans: ["turn", "moment"], jp: "次は娘さんの番です。お嬢ちゃん、ちょっとだけカメラを見てくれるかな？" },
+      { role: "Hamano", en: "Look at the camera. Stand <span class='blank'></span> for a <span class='blank'></span>.", ans: ["still", "second"], jp: "カメラを見て。ちょっとの間じっとしててね。" },
+      { role: "Officer", en: "<span class='blank'></span>. <span class='blank'></span> to Vietnam.", ans: ["Perfect", "Welcome"], jp: "完璧です。ベトナムへようこそ。" }
+    ]
+  },
+  {
+    title: "5. Customs Declaration",
+    steps: [
+      { role: "Custom Officer", en: "Hello. Do you have <span class='blank'></span> to <span class='blank'></span>?", ans: ["anything", "declare"], jp: "こんにちは。申告するものはありますか？" },
+      { role: "Hamano", en: "No, I only have <span class='blank'></span> <span class='blank'></span> and some product <span class='blank'></span> for my work.", ans: ["personal", "belongings", "samples"], jp: "いいえ、引越し用の身の回り品と仕事で使う製品のサンプルが少しあるだけです。" }
+    ]
+  },
+  {
+    title: "6. Food & X-ray Check",
+    steps: [
+      { role: "Officer", en: "Are you <span class='blank'></span> any food, <span class='blank'></span>, or large amounts of <span class='blank'></span>?", ans: ["carrying", "alcohol", "cash"], jp: "食品、アルコール、または多額の現金は持っていますか？" },
+      { role: "Hamano", en: "Just some Japanese food and <span class='blank'></span> for my kitchen. No <span class='blank'></span>.", ans: ["seasonings", "alcohol"], jp: "キッチンで使う日本の食品と調味料が少しあるだけです。お酒はありません。" },
+      { role: "Officer", en: "Okay, please put your bags on the <span class='blank'></span> for <span class='blank'></span>.", ans: ["belt", "X-ray"], jp: "わかりました。バッグをエックス線検査のベルトに乗せてください。" },
+      { role: "Officer", en: "All right. Everything <span class='blank'></span> <span class='blank'></span>. You're good to go.", ans: ["looks", "fine"], jp: "よし。問題ありません。行っていいですよ。" }
+    ]
+  }
+];
+
+let pIdx = 0, sIdx = 0, waiting = false;
+
+function switchPart(n) {
+  pIdx = n; sIdx = 0; waiting = false;
+  document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === n));
+  document.getElementById('partTitle').textContent = parts[n].title;
+  document.getElementById('chatBox').innerHTML = "";
+  document.getElementById('actionBtn').textContent = "Start Section " + (n + 1);
+}
+
+function handleAction() {
+  const current = parts[pIdx];
+  const btn = document.getElementById('actionBtn');
+  if (sIdx >= current.steps.length) { 
+    if (pIdx < parts.length - 1) switchPart(pIdx + 1);
+    else switchPart(0);
+    return;
+  }
+  const step = current.steps[sIdx];
+  if (!waiting) {
+    addBubble(step.role, step.en, step.jp);
+    btn.textContent = "Check Answer";
+    waiting = true;
+  } else {
+    const bubbles = document.querySelectorAll('.bubble');
+    const lastEn = bubbles[bubbles.length - 1].querySelector('.en');
+    let newEn = step.en;
+    step.ans.forEach(a => {
+      newEn = newEn.replace("<span class='blank'></span>", `<strong class="ans">${a}</strong>`);
+    });
+    lastEn.innerHTML = newEn;
+    waiting = false; sIdx++;
+    if (sIdx >= current.steps.length) {
+      btn.textContent = (pIdx < parts.length - 1) ? "Next Section →" : "Course Complete! (Restart)";
+    } else {
+      btn.textContent = "Next Step";
+    }
+  }
+}
+
+function addBubble(role, en, jp) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  const isOfficer = role.toLowerCase().includes('officer');
+  div.className = `bubble ${isOfficer ? 'officer' : 'hamano'}`;
+  div.innerHTML = `<span class="role-name">${role}</span><span class="en">${en}</span><span class="jp">${jp}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+window.onload = () => switchPart(0);
+</script>
+</body>
+</html>
