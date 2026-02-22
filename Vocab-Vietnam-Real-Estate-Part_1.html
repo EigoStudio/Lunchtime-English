@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Part 1 Vocabulary: Talking to the Real Estate Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-color: #fdfaf8;
+    --text-color: #3e2723;
+    --accent-brown: #5d4037;
+    --accent-terracotta: #a0522d;
+    --card-bg: #ffffff;
+    --border-color: #d7ccc8;
+  }
+
+  body { 
+    font-family: 'Noto Sans JP', sans-serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-color);
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+  }
+
+  .container {
+    width: 90vw;
+    max-width: 600px;
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+  }
+
+  .header-area { text-align: center; margin-bottom: 20px; position: relative; }
+  h1 { font-size: 1.1rem; color: var(--accent-brown); margin: 0 0 15px 0; padding-right: 50px; text-align: left; }
+
+  /* Audio Switch Settings */
+  .settings { position: absolute; right: 0; top: 0; display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--accent-brown); }
+  .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+  .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--accent-terracotta); }
+  input:checked + .slider:before { transform: translateX(16px); }
+
+  .nav-area {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: #9e9e9e;
+    padding: 5px 8px;
+  }
+
+  .nav-btn.active { color: var(--accent-terracotta); font-weight: bold; border-bottom: 2px solid var(--accent-terracotta); }
+
+  .quiz-card { text-align: center; }
+  .jp-word { font-size: 1.1rem; margin-bottom: 20px; color: var(--accent-brown); font-weight: 700; min-height: 2.5em; display: flex; align-items: center; justify-content: center; }
+  
+  /* 2x2 Grid for Section 1, 1 column for Section 2 */
+  .choices-grid { display: grid; gap: 10px; margin-bottom: 25px; }
+  .grid-2x2 { grid-template-columns: 1fr 1fr; }
+  .grid-1col { grid-template-columns: 1fr; }
+  
+  .choice-btn {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text-color);
+  }
+
+  .choice-btn:hover { background-color: #fdfaf8; border-color: var(--accent-terracotta); }
+  .choice-btn.correct { background-color: #4e6e4e !important; color: white; border-color: #4e6e4e; }
+  .choice-btn.wrong { background-color: #a66e6e !important; color: white; border-color: #a66e6e; }
+
+  .main-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    background: var(--accent-brown);
+    color: white;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: none; /* 正解するまで出さない */
+  }
+
+  #progress { font-size: 0.75rem; color: #888; margin-bottom: 5px; }
+</style>
+</head>
+<body>
+
+<div class="container" id="mainContainer">
+  <div class="header-area">
+    <h1>Part 1: Talking to the Real Estate Agent</h1>
+    <div class="settings">
+      <span>Audio</span>
+      <label class="switch">
+        <input type="checkbox" id="audioToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="nav-area">
+      <button id="nav1" class="nav-btn active" onclick="changePart(1)">Section 1: New Words</button>
+      <button id="nav2" class="nav-btn" onclick="changePart(2)">Section 2: Expressions</button>
+    </div>
+  </div>
+
+  <div id="quizContent" class="quiz-card">
+    <div id="progress">Step 1 / 19</div>
+    <div class="jp-word" id="jpWord">Loading...</div>
+    <div class="choices-grid" id="choicesGrid"></div>
+    <button class="main-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+  </div>
+</div>
+
+<script>
+const allData = {
+  1: [
+    { jp: "家具付き・フル装備", en: "fully furnished" },
+    { jp: "景色・眺め", en: "view" },
+    { jp: "遊び場", en: "playground" },
+    { jp: "24時間警備", en: "24-hour security" },
+    { jp: "居住者・住人", en: "residents" },
+    { jp: "ネット速度", en: "internet speed" },
+    { jp: "安定した", en: "stable" },
+    { jp: "自家発電機", en: "backup generator" },
+    { jp: "停電", en: "power outage" },
+    { jp: "管理費", en: "management fee" },
+    { jp: "美容コンサルタント", en: "beauty consultant" },
+    { jp: "自宅オフィス", en: "home office" },
+    { jp: "契約", en: "contract" },
+    { jp: "家賃", en: "rent" },
+    { jp: "光熱費", en: "utility bills" },
+    { jp: "別々に", en: "separately" },
+    { jp: "経費", en: "expense" },
+    { jp: "敷金・保証金", en: "security deposit" },
+    { jp: "賃貸借契約", en: "lease agreement" }
+  ],
+  2: [
+    { jp: "日当たりがとても良くて明るいですね。", en: "It’s very bright and sunny." },
+    { jp: "シングルマザーにとって、それは安心です。", en: "That’s reassuring for a single mother." },
+    { jp: "この部屋をオフィスとして使えますか？", en: "Can I use this room as a home office?" },
+    { jp: "ネット速度は安定していますか？", en: "Is the internet speed stable?" },
+    { jp: "光熱費は別払いです。", en: "Utility bills are paid separately." },
+    { jp: "経費として落とすためにレッドインボイスが必要です。", en: "I need a Red Invoice to claim it as an expense." },
+    { jp: "もし契約するなら、敷金はいくらですか？", en: "If I sign the lease agreement, how much is the security deposit?" },
+    { jp: "オーナーに確認します。", en: "I will check with the owner." },
+    { jp: "通常、家賃の2ヶ月分です。", en: "It is usually equivalent to two months' rent." },
+    { jp: "入居準備ができています。", en: "It is ready to move in." }
+  ]
+};
+
+let currentPart = 1;
+let currentIndex = 0;
+let quizItems = [];
+let isSolved = false;
+
+function changePart(p) {
+    currentPart = p;
+    currentIndex = 0;
+    document.getElementById('nav1').classList.toggle('active', p === 1);
+    document.getElementById('nav2').classList.toggle('active', p === 2);
+    loadQuestion();
+}
+
+function loadQuestion() {
+    isSolved = false;
+    quizItems = allData[currentPart];
+    const item = quizItems[currentIndex];
+    
+    document.getElementById('progress').textContent = `Step ${currentIndex + 1} / ${quizItems.length}`;
+    document.getElementById('jpWord').textContent = item.jp;
+    document.getElementById('nextBtn').style.display = "none";
+
+    const grid = document.getElementById('choicesGrid');
+    grid.className = currentPart === 1 ? "choices-grid grid-2x2" : "choices-grid grid-1col";
+    grid.innerHTML = "";
+
+    let choices = [item.en];
+    let pool = allData[currentPart].map(x => x.en).filter(x => x !== item.en);
+    pool.sort(() => Math.random() - 0.5);
+    choices.push(...pool.slice(0, 3));
+    choices.sort(() => Math.random() - 0.5);
+
+    choices.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt, btn);
+        grid.appendChild(btn);
+    });
+}
+
+function checkAnswer(word, btn) {
+    if (isSolved) return;
+    const item = quizItems[currentIndex];
+    
+    if (word === item.en) {
+        isSolved = true;
+        btn.className = "choice-btn correct";
+        document.getElementById('nextBtn').style.display = "block";
+        speak(word);
+    } else {
+        btn.className = "choice-btn wrong";
+        // 1秒後に色を戻して、再度選ばせる
+        setTimeout(() => {
+            if(!isSolved) btn.className = "choice-btn";
+        }, 800);
+    }
+}
+
+function nextQuestion() {
+    currentIndex++;
+    if (currentIndex < quizItems.length) loadQuestion();
+    else showResult();
+}
+
+function showResult() {
+    const content = document.getElementById('quizContent');
+    content.innerHTML = `
+        <div style="padding: 20px 0;">
+            <h2 style="color:var(--accent-terracotta)">Section ${currentPart} Clear!</h2>
+            <p style="font-size:0.9rem; margin-bottom:20px;">全問正解です！この調子で頑張りましょう。</p>
+            <button class="main-btn" style="display:block" onclick="location.reload()">Restart Section</button>
+            <button class="main-btn" style="display:block; margin-top:10px; background:var(--accent-terracotta)" onclick="changePart(${currentPart === 1 ? 2 : 1})">
+                Go to Section ${currentPart === 1 ? 2 : 1}
+            </button>
+        </div>
+    `;
+}
+
+function speak(text) {
+    if (!document.getElementById('audioToggle').checked) return;
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = "en-US";
+    uttr.rate = 0.9;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(uttr);
+}
+
+loadQuestion();
+</script>
+</body>
+</html>
