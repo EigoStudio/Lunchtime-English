@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real Estate Vocabulary Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-color: #fdfaf8;
+    --text-color: #3e2723;
+    --accent-brown: #5d4037;
+    --accent-terracotta: #a0522d;
+    --card-bg: #ffffff;
+    --border-color: #d7ccc8;
+  }
+
+  body { 
+    font-family: 'Noto Sans JP', sans-serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-color);
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start;
+    min-height: 100vh; 
+    padding-top: 20px;
+  }
+
+  .container {
+    width: 95vw;
+    max-width: 900px;
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+  }
+
+  h1 { font-size: 1.5rem; color: var(--accent-brown); margin: 0 0 10px 0; }
+
+  .settings { display: flex; justify-content: flex-end; align-items: center; gap: 8px; font-size: 0.8rem; margin-bottom: 10px; }
+  .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--accent-terracotta); }
+  input:checked + .slider:before { transform: translateX(20px); }
+
+  .nav-area { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+  .nav-btn { background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #9e9e9e; padding: 10px; }
+  .nav-btn.active { color: var(--accent-terracotta); font-weight: bold; border-bottom: 3px solid var(--accent-terracotta); }
+
+  .category-tag {
+    font-size: 0.75rem;
+    color: var(--accent-terracotta);
+    margin-bottom: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .jp-word-container {
+    background: #fdfaf8;
+    border-radius: 10px;
+    margin: 15px 0;
+    padding: 20px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .jp-word { 
+    font-size: 1.8rem;
+    color: var(--accent-brown); 
+    font-weight: 700; 
+  }
+  
+  /* 選択肢を縦2列に変更 */
+  .choices-grid { 
+    display: grid; 
+    gap: 12px; 
+    margin-bottom: 20px; 
+    grid-template-columns: 1fr 1fr; 
+  }
+  
+  .choice-btn {
+    padding: 15px;
+    border: 2px solid var(--border-color);
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    text-align: left;
+    color: var(--text-color);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+  }
+
+  .choice-btn.selected { border-color: var(--accent-terracotta); background-color: #fff3e0; }
+  .choice-btn.correct { background-color: #4e6e4e !important; color: white; border-color: #4e6e4e; }
+  .choice-btn.wrong { background-color: #a66e6e !important; color: white; border-color: #a66e6e; }
+
+  .btn-group { display: flex; gap: 10px; }
+  .main-btn {
+    flex: 1;
+    padding: 18px;
+    border: none;
+    background: var(--accent-brown);
+    color: white;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #nextBtn { background: var(--accent-terracotta); display: none; }
+
+  /* スマホなど画面が狭い場合は1列に戻す設定 */
+  @media (max-width: 600px) {
+    .choices-grid { grid-template-columns: 1fr; }
+    .jp-word { font-size: 1.4rem; }
+    .choice-btn { font-size: 1rem; }
+  }
+
+  /* Print Styles */
+  @media print {
+    @page { size: A4; margin: 15mm; }
+    body { background: white; color: black; display: block; padding: 0; }
+    .container { border: none; box-shadow: none; width: 100%; margin: 0; padding: 0; }
+    .settings, .nav-area, .btn-group, #progress, .switch, #quizContent { display: none !important; }
+    #printContent { display: block !important; }
+    .print-page { page-break-after: always; }
+    h2 { font-size: 1.3rem; border-bottom: 2px solid black; padding-bottom: 5px; margin-top: 20px; }
+    .print-item { 
+      padding: 10px 0; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-end;
+      border-bottom: 1px dotted #ccc;
+    }
+    .answer-line { border-bottom: 1px solid black; min-width: 250px; margin-left: 20px; height: 1.2em; }
+    .word-bank { border: 1.5px solid black; padding: 15px; margin-top: 20px; }
+    .word-bank-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  }
+  #printContent { display: none; }
+</style>
+</head>
+<body>
+
+<div class="container" id="mainContainer">
+  <div class="header-area">
+    <h1>Real Estate Vocabulary Quiz</h1>
+    <div class="settings">
+      <span>Audio</span>
+      <label class="switch">
+        <input type="checkbox" id="audioToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="nav-area">
+      <button id="nav1" class="nav-btn active" onclick="changePart(1)">Section 1: Real Estate & Money</button>
+      <button id="nav2" class="nav-btn" onclick="changePart(2)">Section 2: Contract & Location</button>
+    </div>
+  </div>
+
+  <div id="quizContent" class="quiz-card">
+    <div id="progress">Step 1 / 6</div>
+    <div class="jp-word-container">
+        <div id="categoryName" class="category-tag">CATEGORY</div>
+        <div class="jp-word" id="jpWord">Loading...</div>
+    </div>
+    <div class="choices-grid" id="choicesGrid"></div>
+    <div class="btn-group">
+        <button class="main-btn" id="checkBtn" onclick="checkAnswer()" disabled>Check Answer</button>
+        <button class="main-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+
+  <div id="printContent"></div>
+</div>
+
+<script>
+const allData = {
+  1: [
+    { jp: "不動産", en: "real estate", cat: "Real Estate" },
+    { jp: "賃貸", en: "rental", cat: "Real Estate" },
+    { jp: "大家", en: "landlord", cat: "Real Estate" },
+    { jp: "家賃", en: "rent", cat: "Money / Contract Related" },
+    { jp: "敷金", en: "security deposit", cat: "Money / Contract Related" },
+    { jp: "初期費用", en: "initial cost", cat: "Money / Contract Related" }
+  ],
+  2: [
+    { jp: "契約", en: "contract", cat: "Contract / Process" },
+    { jp: "入居", en: "move in", cat: "Contract / Process" },
+    { jp: "退去", en: "move out", cat: "Contract / Process" },
+    { jp: "内見", en: "property viewing", cat: "Contract / Process" },
+    { jp: "1LDK (Layout)", en: "living + dining + kitchen + bedroom", cat: "Apartment Features" },
+    { jp: "最寄り駅", en: "nearest station", cat: "Location / Convenience" },
+    { jp: "周辺環境", en: "neighborhood environment", cat: "Location / Convenience" }
+  ]
+};
+
+let currentPart = 1;
+let currentIndex = 0;
+let quizItems = [];
+let selectedWord = null;
+let selectedBtn = null;
+let isSolved = false;
+
+function changePart(p) {
+    currentPart = p;
+    currentIndex = 0;
+    document.getElementById('nav1').classList.toggle('active', p === 1);
+    document.getElementById('nav2').classList.toggle('active', p === 2);
+    loadQuestion();
+}
+
+function loadQuestion() {
+    isSolved = false;
+    selectedWord = null;
+    selectedBtn = null;
+    quizItems = allData[currentPart];
+    const item = quizItems[currentIndex];
+    
+    document.getElementById('progress').textContent = `Step ${currentIndex + 1} / ${quizItems.length}`;
+    document.getElementById('categoryName').textContent = item.cat;
+    document.getElementById('jpWord').textContent = item.jp;
+    document.getElementById('checkBtn').style.display = "block";
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('nextBtn').style.display = "none";
+
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = "";
+
+    // 正解とそれ以外のプールからランダムに選択肢を作成
+    let choices = [item.en];
+    let allWordsPool = Object.values(allData).flat().map(x => x.en).filter(x => x !== item.en);
+    allWordsPool.sort(() => Math.random() - 0.5);
+    choices.push(...allWordsPool.slice(0, 3));
+    choices.sort(() => Math.random() - 0.5);
+
+    choices.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = opt;
+        btn.onclick = () => selectChoice(opt, btn);
+        grid.appendChild(btn);
+    });
+}
+
+function selectChoice(word, btn) {
+    if (isSolved) return;
+    const btns = document.querySelectorAll('.choice-btn');
+    btns.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedWord = word;
+    selectedBtn = btn;
+    document.getElementById('checkBtn').disabled = false;
+}
+
+function checkAnswer() {
+    const item = quizItems[currentIndex];
+    if (selectedWord === item.en) {
+        isSolved = true;
+        selectedBtn.className = "choice-btn correct";
+        document.getElementById('checkBtn').style.display = "none";
+        document.getElementById('nextBtn').style.display = "block";
+        speak(selectedWord);
+    } else {
+        selectedBtn.className = "choice-btn wrong";
+        setTimeout(() => { 
+            if(!isSolved) { 
+                selectedBtn.className = "choice-btn"; 
+                selectedBtn.classList.remove('selected'); 
+                document.getElementById('checkBtn').disabled = true; 
+            } 
+        }, 800);
+    }
+}
+
+function nextQuestion() {
+    currentIndex++;
+    if (currentIndex < quizItems.length) loadQuestion();
+    else showResult();
+}
+
+function showResult() {
+    const content = document.getElementById('quizContent');
+    content.innerHTML = `<div style="padding: 40px 0; text-align:center;"><h2 style="color:var(--accent-terracotta)">All Cleared!</h2><button class="main-btn" onclick="location.reload()">Try Again</button></div>`;
+}
+
+function speak(text) {
+    if (!document.getElementById('audioToggle').checked) return;
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = "en-US";
+    uttr.rate = 0.9;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(uttr);
+}
+
+function preparePrint() {
+    const printContainer = document.getElementById('printContent');
+    printContainer.innerHTML = "";
+    [1, 2].forEach(p => {
+        const page = document.createElement('div');
+        page.className = "print-page";
+        const title = p === 1 ? "Section 1: Real Estate & Money" : "Section 2: Contract & Location";
+        let questionsHtml = `<div>`;
+        allData[p].forEach(item => {
+            questionsHtml += `<div class="print-item"><span>${item.jp} <small>(${item.cat})</small></span><span class="answer-line"></span></div>`;
+        });
+        questionsHtml += `</div>`;
+        const shuffledWords = allData[p].map(x => x.en).sort(() => Math.random() - 0.5);
+        let bankHtml = `<div class="word-bank"><div style="font-weight:bold; margin-bottom:10px;">Word Bank</div><div class="word-bank-grid">${shuffledWords.map(w => `<div>・ ${w}</div>`).join('')}</div></div>`;
+        page.innerHTML = `<h2>${title}</h2>${questionsHtml}${bankHtml}`;
+        printContainer.appendChild(page);
+    });
+}
+
+window.onload = () => {
+    preparePrint();
+    loadQuestion();
+};
+</script>
+</body>
+</html>
