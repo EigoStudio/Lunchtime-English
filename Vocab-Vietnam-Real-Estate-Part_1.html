@@ -23,91 +23,125 @@
     margin: 0; 
     display: flex; 
     justify-content: center; 
-    align-items: center; 
+    align-items: flex-start;
     min-height: 100vh; 
+    padding-top: 20px;
   }
 
   .container {
-    width: 90vw;
-    max-width: 600px;
+    width: 95vw;
+    max-width: 900px;
     background: var(--card-bg);
-    padding: 30px;
+    padding: 20px;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     border: 1px solid var(--border-color);
   }
 
-  .header-area { text-align: center; margin-bottom: 20px; position: relative; }
-  h1 { font-size: 1.1rem; color: var(--accent-brown); margin: 0 0 15px 0; padding-right: 50px; text-align: left; }
+  h1 { font-size: 1.5rem; color: var(--accent-brown); margin: 0 0 10px 0; }
 
-  /* Audio Switch Settings */
-  .settings { position: absolute; right: 0; top: 0; display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--accent-brown); }
-  .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+  .settings { display: flex; justify-content: flex-end; align-items: center; gap: 8px; font-size: 0.8rem; margin-bottom: 10px; }
+  .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
   .switch input { opacity: 0; width: 0; height: 0; }
   .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
-  .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
   input:checked + .slider { background-color: var(--accent-terracotta); }
-  input:checked + .slider:before { transform: translateX(16px); }
+  input:checked + .slider:before { transform: translateX(20px); }
 
-  .nav-area {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 25px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
+  .nav-area { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+  .nav-btn { background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #9e9e9e; padding: 10px; }
+  .nav-btn.active { color: var(--accent-terracotta); font-weight: bold; border-bottom: 3px solid var(--accent-terracotta); }
+
+  .jp-word { 
+    font-size: 1.8rem;
+    margin: 15px 0; 
+    color: var(--accent-brown); 
+    font-weight: 700; 
+    min-height: 2em;
+    display: flex; align-items: center; justify-content: center;
+    background: #fdfaf8;
+    border-radius: 10px;
   }
-
-  .nav-btn {
-    background: none;
-    border: none;
-    font-family: inherit;
-    font-size: 0.8rem;
-    cursor: pointer;
-    color: #9e9e9e;
-    padding: 5px 8px;
-  }
-
-  .nav-btn.active { color: var(--accent-terracotta); font-weight: bold; border-bottom: 2px solid var(--accent-terracotta); }
-
-  .quiz-card { text-align: center; }
-  .jp-word { font-size: 1.1rem; margin-bottom: 20px; color: var(--accent-brown); font-weight: 700; min-height: 2.5em; display: flex; align-items: center; justify-content: center; }
   
-  /* 2x2 Grid for Section 1, 1 column for Section 2 */
-  .choices-grid { display: grid; gap: 10px; margin-bottom: 25px; }
+  .choices-grid { display: grid; gap: 12px; margin-bottom: 20px; }
   .grid-2x2 { grid-template-columns: 1fr 1fr; }
   .grid-1col { grid-template-columns: 1fr; }
   
   .choice-btn {
-    padding: 12px;
-    border: 1px solid var(--border-color);
+    padding: 15px;
+    border: 2px solid var(--border-color);
     background: white;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s;
+    font-size: 1.2rem;
     text-align: left;
     color: var(--text-color);
   }
 
-  .choice-btn:hover { background-color: #fdfaf8; border-color: var(--accent-terracotta); }
+  .choice-btn.selected { border-color: var(--accent-terracotta); background-color: #fff3e0; }
   .choice-btn.correct { background-color: #4e6e4e !important; color: white; border-color: #4e6e4e; }
   .choice-btn.wrong { background-color: #a66e6e !important; color: white; border-color: #a66e6e; }
 
+  .btn-group { display: flex; gap: 10px; }
   .main-btn {
-    width: 100%;
-    padding: 15px;
+    flex: 1;
+    padding: 18px;
     border: none;
     background: var(--accent-brown);
     color: white;
-    border-radius: 30px;
-    font-size: 1rem;
+    border-radius: 10px;
+    font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    display: none; /* 正解するまで出さない */
+  }
+  #nextBtn { background: var(--accent-terracotta); display: none; }
+
+  @media (max-width: 600px) {
+    .grid-2x2 { grid-template-columns: 1fr; }
+    .jp-word { font-size: 1.3rem; }
+    .choice-btn { font-size: 1rem; }
   }
 
-  #progress { font-size: 0.75rem; color: #888; margin-bottom: 5px; }
+  /* 印刷用設定 */
+  @media print {
+    @page { size: A4; margin: 15mm; }
+    body { background: white; color: black; display: block; padding: 0; }
+    .container { border: none; box-shadow: none; width: 100%; margin: 0; padding: 0; }
+    .settings, .nav-area, .btn-group, #progress, .switch, #quizContent { display: none !important; }
+    
+    #printContent { display: block !important; }
+    .print-page { page-break-after: always; min-height: 0; display: flex; flex-direction: column; }
+    h2 { font-size: 1.3rem; border-bottom: 2px solid black; padding-bottom: 5px; margin-bottom: 15px; }
+    
+    .print-questions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 25px; margin-bottom: 10px; }
+    .print-questions-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+
+    .print-item { 
+      padding: 8px 0; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-end;
+      font-size: 1.0rem; 
+    }
+    
+    .answer-line { border-bottom: 1px solid black; min-width: 140px; flex-grow: 1; margin-left: 10px; height: 1.2em; }
+    .print-questions-list .answer-line { min-width: 200px; }
+
+    .word-bank {
+        border: 1.5px solid black;
+        padding: 20px;
+        margin-top: 0px;
+        border-radius: 5px;
+        /* 余白を埋めるため、可能な限りスペースを確保 */
+        flex-grow: 0;
+    }
+    .word-bank-title { font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; text-decoration: underline; }
+    
+    /* Word Bankの列制御 */
+    .word-bank-grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; font-size: 1.1rem; }
+    .word-bank-grid-1col { display: grid; grid-template-columns: 1fr; gap: 8px; font-size: 1.1rem; }
+  }
+  #printContent { display: none; }
 </style>
 </head>
 <body>
@@ -132,31 +166,27 @@
     <div id="progress">Step 1 / 19</div>
     <div class="jp-word" id="jpWord">Loading...</div>
     <div class="choices-grid" id="choicesGrid"></div>
-    <button class="main-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+    <div class="btn-group">
+        <button class="main-btn" id="checkBtn" onclick="checkAnswer()" disabled>Check Answer</button>
+        <button class="main-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+    </div>
   </div>
+
+  <div id="printContent"></div>
 </div>
 
 <script>
 const allData = {
   1: [
-    { jp: "家具付き・フル装備", en: "fully furnished" },
-    { jp: "景色・眺め", en: "view" },
-    { jp: "遊び場", en: "playground" },
-    { jp: "24時間警備", en: "24-hour security" },
-    { jp: "居住者・住人", en: "residents" },
-    { jp: "ネット速度", en: "internet speed" },
-    { jp: "安定した", en: "stable" },
-    { jp: "自家発電機", en: "backup generator" },
-    { jp: "停電", en: "power outage" },
-    { jp: "管理費", en: "management fee" },
-    { jp: "美容コンサルタント", en: "beauty consultant" },
-    { jp: "自宅オフィス", en: "home office" },
-    { jp: "契約", en: "contract" },
-    { jp: "家賃", en: "rent" },
-    { jp: "光熱費", en: "utility bills" },
-    { jp: "別々に", en: "separately" },
-    { jp: "経費", en: "expense" },
-    { jp: "敷金・保証金", en: "security deposit" },
+    { jp: "家具付き・フル装備", en: "fully furnished" }, { jp: "景色・眺め", en: "view" },
+    { jp: "遊び場", en: "playground" }, { jp: "24時間警備", en: "24-hour security" },
+    { jp: "居住者・住人", en: "residents" }, { jp: "ネット速度", en: "internet speed" },
+    { jp: "安定した", en: "stable" }, { jp: "自家発電機", en: "backup generator" },
+    { jp: "停電", en: "power outage" }, { jp: "管理費", en: "management fee" },
+    { jp: "美容コンサルタント", en: "beauty consultant" }, { jp: "自宅オフィス", en: "home office" },
+    { jp: "契約", en: "contract" }, { jp: "家賃", en: "rent" },
+    { jp: "光熱費", en: "utility bills" }, { jp: "別々に", en: "separately" },
+    { jp: "経費", en: "expense" }, { jp: "敷金・保証金", en: "security deposit" },
     { jp: "賃貸借契約", en: "lease agreement" }
   ],
   2: [
@@ -176,6 +206,8 @@ const allData = {
 let currentPart = 1;
 let currentIndex = 0;
 let quizItems = [];
+let selectedWord = null;
+let selectedBtn = null;
 let isSolved = false;
 
 function changePart(p) {
@@ -188,11 +220,15 @@ function changePart(p) {
 
 function loadQuestion() {
     isSolved = false;
+    selectedWord = null;
+    selectedBtn = null;
     quizItems = allData[currentPart];
     const item = quizItems[currentIndex];
     
     document.getElementById('progress').textContent = `Step ${currentIndex + 1} / ${quizItems.length}`;
     document.getElementById('jpWord').textContent = item.jp;
+    document.getElementById('checkBtn').style.display = "block";
+    document.getElementById('checkBtn').disabled = true;
     document.getElementById('nextBtn').style.display = "none";
 
     const grid = document.getElementById('choicesGrid');
@@ -209,26 +245,32 @@ function loadQuestion() {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
         btn.textContent = opt;
-        btn.onclick = () => checkAnswer(opt, btn);
+        btn.onclick = () => selectChoice(opt, btn);
         grid.appendChild(btn);
     });
 }
 
-function checkAnswer(word, btn) {
+function selectChoice(word, btn) {
     if (isSolved) return;
+    const btns = document.querySelectorAll('.choice-btn');
+    btns.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedWord = word;
+    selectedBtn = btn;
+    document.getElementById('checkBtn').disabled = false;
+}
+
+function checkAnswer() {
     const item = quizItems[currentIndex];
-    
-    if (word === item.en) {
+    if (selectedWord === item.en) {
         isSolved = true;
-        btn.className = "choice-btn correct";
+        selectedBtn.className = "choice-btn correct";
+        document.getElementById('checkBtn').style.display = "none";
         document.getElementById('nextBtn').style.display = "block";
-        speak(word);
+        speak(selectedWord);
     } else {
-        btn.className = "choice-btn wrong";
-        // 1秒後に色を戻して、再度選ばせる
-        setTimeout(() => {
-            if(!isSolved) btn.className = "choice-btn";
-        }, 800);
+        selectedBtn.className = "choice-btn wrong";
+        setTimeout(() => { if(!isSolved) { selectedBtn.className = "choice-btn"; selectedBtn.classList.remove('selected'); document.getElementById('checkBtn').disabled = true; } }, 800);
     }
 }
 
@@ -240,16 +282,7 @@ function nextQuestion() {
 
 function showResult() {
     const content = document.getElementById('quizContent');
-    content.innerHTML = `
-        <div style="padding: 20px 0;">
-            <h2 style="color:var(--accent-terracotta)">Section ${currentPart} Clear!</h2>
-            <p style="font-size:0.9rem; margin-bottom:20px;">全問正解です！この調子で頑張りましょう。</p>
-            <button class="main-btn" style="display:block" onclick="location.reload()">Restart Section</button>
-            <button class="main-btn" style="display:block; margin-top:10px; background:var(--accent-terracotta)" onclick="changePart(${currentPart === 1 ? 2 : 1})">
-                Go to Section ${currentPart === 1 ? 2 : 1}
-            </button>
-        </div>
-    `;
+    content.innerHTML = `<div style="padding: 20px 0; text-align:center;"><h2 style="color:var(--accent-terracotta)">Clear!</h2><button class="main-btn" onclick="location.reload()">Restart</button></div>`;
 }
 
 function speak(text) {
@@ -261,7 +294,47 @@ function speak(text) {
     window.speechSynthesis.speak(uttr);
 }
 
-loadQuestion();
+function preparePrint() {
+    const printContainer = document.getElementById('printContent');
+    printContainer.innerHTML = "";
+
+    [1, 2].forEach(p => {
+        const page = document.createElement('div');
+        page.className = "print-page";
+        
+        const title = p === 1 ? "Section 1: New Words" : "Section 2: Expressions";
+        const containerClass = p === 1 ? "print-questions-grid" : "print-questions-list";
+        
+        let questionsHtml = `<div class="${containerClass}">`;
+        allData[p].forEach(item => {
+            questionsHtml += `
+                <div class="print-item">
+                    <span>${item.jp}</span>
+                    <span class="answer-line"></span>
+                </div>`;
+        });
+        questionsHtml += `</div>`;
+
+        const shuffledWords = allData[p].map(x => x.en).sort(() => Math.random() - 0.5);
+        const bankGridClass = p === 1 ? "word-bank-grid-2col" : "word-bank-grid-1col";
+        
+        let bankHtml = `
+            <div class="word-bank">
+                <div class="word-bank-title">Word Bank (English)</div>
+                <div class="${bankGridClass}">
+                    ${shuffledWords.map(w => `<div>・ ${w}</div>`).join('')}
+                </div>
+            </div>`;
+
+        page.innerHTML = `<h2>${title}</h2>${questionsHtml}${bankHtml}`;
+        printContainer.appendChild(page);
+    });
+}
+
+window.onload = () => {
+    preparePrint();
+    loadQuestion();
+};
 </script>
 </body>
 </html>
