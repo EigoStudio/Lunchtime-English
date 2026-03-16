@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dialogue Practice: Beauty Counter</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+  :root { 
+    --bg: #fff5f8; 
+    --client: #fce4ec; 
+    --bc: #ffffff; 
+    --accent: #880e4f; 
+    --highlight: #d81b60; 
+  }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; color: #444; }
+  .container { width: 100%; max-width: 650px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(216, 27, 96, 0.1); border: 1px solid #f8bbd0; }
+  
+  .header-area { text-align: center; border-bottom: 2px solid #fce4ec; margin-bottom: 20px; padding-bottom: 15px; position: relative; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--accent); margin: 0; font-style: italic; }
+  
+  .settings { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 0.8rem; color: var(--accent); margin-top: 10px; }
+  .control-row { display: flex; align-items: center; gap: 10px; }
+
+  .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider-round { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+  .slider-round:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+  input:checked + .slider-round { background-color: var(--highlight); }
+  input:checked + .slider-round:before { transform: translateX(16px); }
+  input[type=range] { accent-color: var(--highlight); width: 80px; cursor: pointer; }
+
+  .chat-box { min-height: 500px; overflow-y: auto; border: 1px solid #f8bbd0; padding: 20px; display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; background: #fffafb; border-radius: 15px; }
+  .bubble { max-width: 85%; padding: 15px; border-radius: 15px; line-height: 1.6; font-size: 0.95rem; border: 1px solid #fce4ec; position: relative; }
+  .bc { align-self: flex-start; background: var(--bc); border-bottom-left-radius: 2px; box-shadow: 2px 2px 5px rgba(0,0,0,0.02); }
+  .customer { align-self: flex-end; background: var(--client); border-bottom-right-radius: 2px; }
+  
+  .role-label { font-size: 0.7rem; font-weight: bold; color: var(--accent); margin-bottom: 4px; display: block; letter-spacing: 0.05em; }
+  .jp { font-size: 0.8rem; color: #888; display: block; margin-top: 10px; border-top: 1px dashed #fce4ec; padding-top: 8px; }
+  .blank { display: inline-block; border-bottom: 2px solid var(--highlight); min-width: 60px; height: 1.2em; vertical-align: middle; margin: 0 4px; background: #fff0f3; border-radius: 4px; }
+  
+  .btn { width: 100%; padding: 18px; border: none; background: linear-gradient(135deg, var(--highlight), var(--accent)); color: white; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(216, 27, 96, 0.3); transition: 0.3s; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(216, 27, 96, 0.4); }
+  strong.ans { color: var(--highlight); border-bottom: 2px solid var(--highlight); font-weight: bold; background: #fffde7; padding: 0 2px; }
+  .progress-text { text-align: center; font-size: 0.85rem; color: var(--accent); margin-bottom: 8px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header-area">
+    <h1>Beauty Counter Dialogue</h1>
+    <div class="settings">
+      <div class="control-row">
+        <span>Audio</span>
+        <label class="switch">
+          <input type="checkbox" id="audioToggle" checked>
+          <span class="slider-round"></span>
+        </label>
+      </div>
+      <div class="control-row">
+        <span>Speed</span>
+        <input type="range" id="speedRange" min="0.5" max="1.5" step="0.1" value="0.9">
+      </div>
+    </div>
+  </div>
+  
+  <div class="progress-text" id="progressText">Step 1 / 15</div>
+  <div id="chatBox" class="chat-box"></div>
+  
+  <div class="controls">
+    <button class="btn" id="actionBtn" onclick="handleAction()">Start Consultation</button>
+  </div>
+</div>
+
+<script>
+const scriptSteps = [
+  { role: "BC", en: "Good afternoon. Welcome to our beauty counter. <span class='blank'></span> <span class='blank'></span> I <span class='blank'></span> <span class='blank'></span> today?", ans: ["How", "can", "help", "you"], jp: "こんにちは。コスメカウンターへようこそ。本日はどのようなご用件でしょうか。" },
+  { role: "Customer", en: "Hi. I'm <span class='blank'></span> <span class='blank'></span> a new night cream for dry skin.", ans: ["looking", "for"], jp: "こんにちは。乾燥肌用の新しいナイトクリームを探しています。" },
+  { role: "BC", en: "<span class='blank'></span> <span class='blank'></span>. We have several options for hydration.", ans: ["Of", "course"], jp: "かしこまりました。保湿にぴったりの選択肢がいくつかございます。" },
+  { role: "BC", en: "To find the best one, <span class='blank'></span> I <span class='blank'></span> your <span class='blank'></span> <span class='blank'></span>?", ans: ["may", "ask", "budget", "range"], jp: "最適なものをご提案するために、ご予算をお伺いしてもよろしいでしょうか。" },
+  { role: "Customer", en: "<span class='blank'></span> 5,000 to 8,000 yen, please.", ans: ["Around"], jp: "だいたい5,000円から8,000円くらいでお願いします。" },
+  { role: "BC", en: "<span class='blank'></span> <span class='blank'></span>. That helps me narrow it down.", ans: ["I", "see"], jp: "なるほど、承知いたしました。候補を絞りやすくなります。" },
+  { role: "BC", en: "Do you have any <span class='blank'></span> in terms of texture or scent?", ans: ["preferences"], jp: "テクスチャーや香りについて、何かご希望（好み）はありますか。" },
+  { role: "Customer", en: "I prefer something rich but not too sticky.", ans: [], jp: "しっとりしていて、でもベタつきすぎないものがいいです。" },
+  { role: "BC", en: "<span class='blank'></span> <span class='blank'></span> <span class='blank'></span> an eye cream as well?", ans: ["Do", "you", "need"], jp: "アイクリームも必要ですか（お探しですか）？" },
+  { role: "Customer", en: "No, I still have one at home.", ans: [], jp: "いいえ、まだ家にあります。" },
+  { role: "BC", en: "Understood. <span class='blank'></span> <span class='blank'></span> <span class='blank'></span> <span class='blank'></span> <span class='blank'></span> have a facial treatment?", ans: ["When", "are", "you", "planning", "to"], jp: "かしこまりました。フェイシャルトリートメントを受けられるご予定はいつ頃ですか。" },
+  { role: "Customer", en: "Maybe next weekend if there is an opening.", ans: [], jp: "もし空きがあれば、来週末くらいに。" },
+  { role: "BC", en: "Great. I <span class='blank'></span> <span class='blank'></span> a <span class='blank'></span> for you on Saturday.", ans: ["can", "arrange", "counseling"], jp: "いいですね。土曜日にカウンセリング（のご予約）を手配できます。" },
+  { role: "Customer", en: "That <span class='blank'></span> <span class='blank'></span>. Thank you for your help.", ans: ["sounds", "perfect"], jp: "それは完璧ですね（いいですね）。助けてくれてありがとう。" },
+  { role: "BC", en: "You’re very welcome. It’s my <span class='blank'></span>.", ans: ["pleasure"], jp: "どういたしまして。こちらこそありがとうございます（お役に立てて光栄です）。" }
+];
+
+let sIdx = 0, waiting = false;
+
+function speak(htmlContent) {
+  if (!document.getElementById('audioToggle').checked) return;
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  const text = tempDiv.textContent || tempDiv.innerText || "";
+  const uttr = new SpeechSynthesisUtterance(text);
+  uttr.lang = "en-US";
+  uttr.rate = parseFloat(document.getElementById('speedRange').value);
+
+  const voices = window.speechSynthesis.getVoices();
+  const femaleVoice = voices.find(v => 
+    v.lang.includes('en-US') && 
+    (v.name.includes('Female') || v.name.includes('Google US English') || v.name.includes('Samantha') || v.name.includes('Zira'))
+  );
+  if (femaleVoice) uttr.voice = femaleVoice;
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(uttr);
+}
+
+window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+
+function handleAction() {
+  const btn = document.getElementById('actionBtn');
+  if (sIdx >= scriptSteps.length) {
+    location.reload();
+    return;
+  }
+
+  const step = scriptSteps[sIdx];
+  if (!waiting) {
+    addBubble(step.role, step.en, step.jp);
+    if(step.ans.length > 0) {
+      btn.textContent = "Check Answers";
+      waiting = true;
+    } else {
+      speak(step.en);
+      sIdx++;
+      btn.textContent = (sIdx >= scriptSteps.length) ? "Finish & Restart" : "Next Line";
+    }
+  } else {
+    const bubbles = document.querySelectorAll('.bubble');
+    const lastEn = bubbles[bubbles.length - 1].querySelector('.en-text');
+    let newEn = step.en;
+    step.ans.forEach(a => {
+        newEn = newEn.replace("<span class='blank'></span>", `<strong class="ans">${a}</strong>`);
+    });
+    lastEn.innerHTML = newEn;
+    speak(newEn);
+    waiting = false; 
+    sIdx++;
+    document.getElementById('progressText').textContent = `Step ${sIdx} / ${scriptSteps.length}`;
+    btn.textContent = (sIdx >= scriptSteps.length) ? "Finish & Restart" : "Next Line";
+  }
+}
+
+function addBubble(role, en, jp) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  const isBC = role.toLowerCase() === 'bc';
+  div.className = `bubble ${isBC ? 'bc' : 'customer'}`;
+  div.innerHTML = `<span class="role-label">${role}</span><span class="en-text">${en}</span><span class="jp">${jp}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+</script>
+</body>
+</html>

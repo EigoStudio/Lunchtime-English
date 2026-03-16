@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beauty Consultant: Professional Phrase Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #fffafa; --accent: #c2185b; --sub: #fce4ec; --text: #4a4a4a; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; color: var(--text); }
+  .container { width: 100%; max-width: 600px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid var(--sub); }
+  
+  .header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid var(--sub); padding-bottom: 10px; position: relative; }
+  .header h1 { font-size: 1.2rem; color: var(--accent); margin-bottom: 15px; }
+
+  /* 設定エリア（スピード調整） */
+  .audio-settings { display: flex; justify-content: flex-end; align-items: center; gap: 10px; font-size: 0.8rem; color: #888; margin-bottom: 10px; }
+  input[type=range] { accent-color: var(--accent); width: 80px; cursor: pointer; }
+
+  /* 質問カードエリア */
+  .card { background: #fff; min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px; }
+  .jp-task { font-size: 1.3rem; font-weight: bold; color: #333; line-height: 1.5; padding: 0 10px; }
+  .en-sentence { font-size: 1.1rem; color: var(--accent); min-height: 1.5em; font-weight: 500; }
+  .blank-space { border-bottom: 2px solid #ccc; display: inline-block; min-width: 100px; color: #d81b60; }
+
+  /* 選択肢エリア */
+  .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 20px; display: none; }
+  .choice-btn { padding: 15px; border: 2px solid var(--sub); background: white; border-radius: 12px; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
+  .choice-btn:hover { background: var(--sub); }
+  .choice-btn.correct { background: #4caf50; color: white; border-color: #4caf50; }
+  .choice-btn.wrong { background: #ff5252; color: white; border-color: #ff5252; opacity: 0.6; }
+
+  /* 操作ボタン */
+  .main-btn { width: 100%; padding: 18px; border: none; background: var(--accent); color: white; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
+  
+  .progress { text-align: right; font-size: 0.8rem; color: #999; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="progress" id="progress">Q 1 / 10</div>
+  <div class="header">
+    <h1>接客英会話(Beauty Consultant編)</h1>
+    <div class="audio-settings">
+      <span>Speed: <span id="speedVal">0.9</span>x</span>
+      <input type="range" id="speedRange" min="0.5" max="1.5" step="0.1" value="0.9" oninput="document.getElementById('speedVal').innerText=this.value">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="jp-task" id="jpTask">読み込み中...</div>
+    <div class="en-sentence" id="enSentence" style="visibility: hidden;"></div>
+    <div id="choicesGrid" class="choices-grid"></div>
+  </div>
+
+  <button class="main-btn" id="actionBtn" onclick="handleMainAction()">Show Choices</button>
+</div>
+
+<script>
+const quizData = [
+  { task: "お客様にご用件を伺うときは？", sentence: "(____) I help you today?", choices: ["How can", "What do", "Where shall", "How do"], ans: "How can" },
+  { task: "「〜を探しています」と言いたいときは？", sentence: "I am (____) a new cream.", choices: ["looking for", "finding to", "watching at", "seeking of"], ans: "looking for" },
+  { task: "「かしこまりました」と快諾するときは？", sentence: "(____), we have many options.", choices: ["Of course", "Maybe", "Actually", "Unfortunately"], ans: "Of course" },
+  { task: "「ご予算はどのくらいですか？」と聞くときは？", sentence: "May I ask your (____)?", choices: ["budget range", "money limit", "price point", "cost area"], ans: "budget range" },
+  { task: "「だいたい〜くらい」と予算を伝えるときは？", sentence: "My budget is (____) 5,000 yen.", choices: ["around", "between", "nearly", "beside"], ans: "around" },
+  { task: "「なるほど、承知いたしました」と相槌を打つなら？", sentence: "(____). That helps a lot.", choices: ["I see", "I look", "I watch", "I hear"], ans: "I see" },
+  { task: "「好み（こだわり）はありますか？」と聞くなら？", sentence: "Do you have any (____)?", choices: ["preferences", "favorites", "likes", "selects"], ans: "preferences" },
+  { task: "「〜は必要ですか？」と別の商品を提案するときは？", sentence: "(____) an eye cream as well?", choices: ["Do you need", "Are you want", "Have you need", "Is it need"], ans: "Do you need" },
+  { task: "「いつ頃〜するご予定ですか？」と予定を伺うときは？", sentence: "(____) have a facial treatment?", choices: ["When are you planning to", "What time you will", "How long you plan", "Where are you going to"], ans: "When are you planning to" },
+  { task: "「手配・準備できますよ」と提案するときは？", sentence: "I can (____) a session for you.", choices: ["arrange", "make", "do", "order"], ans: "arrange" }
+];
+
+let currentIdx = 0;
+let state = "ASK"; 
+
+function speak(text) {
+  const uttr = new SpeechSynthesisUtterance(text);
+  uttr.lang = "en-US";
+  
+  // スピード調整の値を反映
+  uttr.rate = parseFloat(document.getElementById('speedRange').value);
+
+  // 若い女性の声を探す
+  const voices = window.speechSynthesis.getVoices();
+  const femaleVoice = voices.find(v => 
+    v.lang.includes('en-US') && 
+    (v.name.includes('Female') || v.name.includes('Google US English') || v.name.includes('Samantha') || v.name.includes('Zira'))
+  );
+  if (femaleVoice) uttr.voice = femaleVoice;
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(uttr);
+}
+
+function updateUI() {
+  const item = quizData[currentIdx];
+  document.getElementById('progress').textContent = `Question ${currentIdx + 1} / ${quizData.length}`;
+  document.getElementById('jpTask').textContent = item.task;
+  const enArea = document.getElementById('enSentence');
+  const choicesGrid = document.getElementById('choicesGrid');
+  const actionBtn = document.getElementById('actionBtn');
+
+  if (state === "ASK") {
+    enArea.style.visibility = "hidden";
+    choicesGrid.style.display = "none";
+    actionBtn.textContent = "Show Choices";
+    actionBtn.style.display = "block";
+  } else if (state === "CHOICES") {
+    enArea.style.visibility = "visible";
+    enArea.innerHTML = item.sentence.replace("(____)", '<span class="blank-space">? ? ?</span>');
+    choicesGrid.style.display = "grid";
+    actionBtn.style.display = "none";
+    
+    choicesGrid.innerHTML = "";
+    const shuffled = [...item.choices].sort(() => Math.random() - 0.5);
+    shuffled.forEach(choice => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = choice;
+      btn.onclick = () => checkAnswer(choice, btn);
+      choicesGrid.appendChild(btn);
+    });
+  }
+}
+
+function handleMainAction() {
+  if (state === "ASK") {
+    state = "CHOICES";
+    updateUI();
+  } else if (state === "CORRECT") {
+    currentIdx++;
+    if (currentIdx < quizData.length) {
+      state = "ASK";
+      updateUI();
+    } else {
+      alert("全問クリアです！お疲れ様でした！");
+      location.reload();
+    }
+  }
+}
+
+function checkAnswer(choice, btn) {
+  const item = quizData[currentIdx];
+  const enArea = document.getElementById('enSentence');
+  if (choice === item.ans) {
+    btn.classList.add('correct');
+    const fullSentence = item.sentence.replace("(____)", item.ans);
+    enArea.innerHTML = item.sentence.replace("(____)", `<strong style="color:#d81b60; border-bottom:2px solid #d81b60;">${item.ans}</strong>`);
+    
+    speak(fullSentence);
+
+    state = "CORRECT";
+    setTimeout(() => {
+        document.getElementById('choicesGrid').style.display = "none";
+        const actionBtn = document.getElementById('actionBtn');
+        actionBtn.style.display = "block";
+        actionBtn.textContent = "Next Question →";
+    }, 1000);
+  } else {
+    btn.classList.add('wrong');
+    setTimeout(() => btn.classList.remove('wrong'), 500);
+  }
+}
+
+// 声のリストを読み込むために必要
+window.speechSynthesis.onvoiceschanged = () => {};
+window.onload = updateUI;
+</script>
+</body>
+</html>
