@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordering with Care: Mother & Daughter</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #fdfaf8; --daughter: #fff0f0; --mother: #f0f7ff; --staff: #ffffff; --accent: #5d4037; --highlight: #1b5e20; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; }
+  .container { width: 100%; max-width: 650px; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #d7ccc8; }
+  
+  .header-area { text-align: center; border-bottom: 2px solid #efebe9; margin-bottom: 20px; padding-bottom: 10px; position: relative; }
+  h1 { font-size: 1.2rem; color: var(--accent); margin: 0; }
+  .settings { position: absolute; right: 0; top: 0; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+  
+  .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+  .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--highlight); }
+  input:checked + .slider:before { transform: translateX(16px); }
+
+  .chat-box { min-height: 520px; overflow-y: auto; border: 1px solid #efebe9; padding: 20px; display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; background: #fafafa; border-radius: 10px; }
+  .bubble { max-width: 85%; padding: 15px; border-radius: 12px; line-height: 1.6; font-size: 0.95rem; border: 1px solid #e0e0e0; position: relative; }
+  .staff { align-self: flex-start; background: var(--staff); border-bottom-left-radius: 2px; }
+  .mother { align-self: flex-end; background: var(--mother); border-color: #bbdefb; border-bottom-right-radius: 2px; }
+  .daughter { align-self: flex-end; background: var(--daughter); border-color: #ffcdd2; border-bottom-right-radius: 2px; }
+  
+  .role-name { font-size: 0.7rem; font-weight: bold; color: #8d6e63; margin-bottom: 4px; display: block; }
+  .jp { font-size: 0.8rem; color: #757575; display: block; margin-top: 8px; border-top: 1px dashed #e0e0e0; padding-top: 5px; }
+  .blank { display: inline-block; border-bottom: 2px solid var(--accent); min-width: 80px; height: 1.2em; vertical-align: middle; margin: 0 4px; background: #fff; }
+  
+  .btn { width: 100%; padding: 18px; border: none; background: var(--accent); color: white; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+  strong.ans { color: #2e7d32; border-bottom: 2px solid #2e7d32; font-weight: bold; }
+  .progress-text { text-align: center; font-size: 0.8rem; color: #9e9e9e; margin-bottom: 5px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header-area">
+    <h1>Ordering Vietnamese Food: Mother & Daughter</h1>
+    <div class="settings">
+      <span>Audio</span>
+      <label class="switch"><input type="checkbox" id="audioToggle" checked><span class="slider"></span></label>
+    </div>
+  </div>
+  
+  <div class="progress-text" id="progressText">Step 1 / 10</div>
+  <div id="chatBox" class="chat-box"></div>
+  
+  <div class="controls">
+    <button class="btn" id="actionBtn" onclick="handleAction()">Start Dialogue</button>
+  </div>
+</div>
+
+<script>
+const scriptSteps = [
+  { role: "Staff", en: "Good evening. Are you ready to order?", ans: [], jp: "こんばんは。ご注文はお決まりですか？" },
+  { role: "Mother", en: "Yes. Does this Phở have <span class='blank'></span> in it?", ans: ["herbs"], jp: "はい。このフォーにはハーブが入っていますか？" },
+  { role: "Staff", en: "Yes, it usually contains <span class='blank'></span> and Thai basil.", ans: ["cilantro"], jp: "はい、通常はパクチーとタイバジルが入っています。" },
+  { role: "Daughter", en: "Excuse me, I'm <span class='blank'></span> to strong <span class='blank'></span>.", ans: ["sensitive", "smells"], jp: "すみません、私、強い匂いに敏感なんです。" },
+  { role: "Mother", en: "Can you <span class='blank'></span> them from the soup?", ans: ["remove"], jp: "スープからそれら（ハーブ）を除いてもらえますか？" },
+  { role: "Staff", en: "Of course. Would you like them <span class='blank'></span> <span class='blank'></span> <span class='blank'></span>?", ans: ["on", "the", "side"], jp: "かしこまりました。別々にして（横に添えて）お持ちしましょうか？" },
+  { role: "Mother", en: "No, <span class='blank'></span> <span class='blank'></span> for her, please. She really can't eat them.", ans: ["no", "herbs"], jp: "いいえ、この子の分はハーブなしでお願いします。本当に食べられないので。" },
+  { role: "Mother", en: "But I <span class='blank'></span> herbs, so I'll take <span class='blank'></span> with <span class='blank'></span>.", ans: ["love", "another", "everything"], jp: "でも私はハーブが大好きなので、もう一つは全部入りでお願いします。" },
+  { role: "Staff", en: "Understood. One Phở with no cilantro and one with <span class='blank'></span> <span class='blank'></span>.", ans: ["extra", "herbs"], jp: "承知いたしました。パクチー抜きのフォーを一つと、ハーブ多めのを一つですね。" },
+  { role: "Mother", en: "Yes, that's <span class='blank'></span>. Thank you!", ans: ["perfect"], jp: "はい、それで完璧です。ありがとう！" }
+];
+
+let sIdx = 0, waiting = false;
+
+function speak(htmlContent) {
+  if (!document.getElementById('audioToggle').checked) return;
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  const text = tempDiv.textContent || tempDiv.innerText || "";
+  const uttr = new SpeechSynthesisUtterance(text);
+  uttr.lang = "en-US";
+  uttr.rate = 0.85;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(uttr);
+}
+
+function handleAction() {
+  const btn = document.getElementById('actionBtn');
+  if (sIdx >= scriptSteps.length) { location.reload(); return; }
+
+  const step = scriptSteps[sIdx];
+  if (!waiting) {
+    addBubble(step.role, step.en, step.jp);
+    if(step.ans.length > 0) {
+      btn.textContent = "Check Answers";
+      waiting = true;
+    } else {
+      speak(step.en);
+      sIdx++;
+      document.getElementById('progressText').textContent = `Step ${sIdx} / ${scriptSteps.length}`;
+      btn.textContent = (sIdx >= scriptSteps.length) ? "Finish & Restart" : "Next Line";
+    }
+  } else {
+    const bubbles = document.querySelectorAll('.bubble');
+    const lastEn = bubbles[bubbles.length - 1].querySelector('.en');
+    let newEn = step.en;
+    step.ans.forEach(a => { newEn = newEn.replace("<span class='blank'></span>", `<strong class="ans">${a}</strong>`); });
+    lastEn.innerHTML = newEn;
+    speak(newEn);
+    waiting = false; 
+    sIdx++;
+    document.getElementById('progressText').textContent = `Step ${sIdx} / ${scriptSteps.length}`;
+    btn.textContent = (sIdx >= scriptSteps.length) ? "Finish & Restart" : "Next Line";
+  }
+}
+
+function addBubble(role, en, jp) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = `bubble ${role.toLowerCase()}`;
+  div.innerHTML = `<span class="role-name">${role}</span><span class="en">${en}</span><span class="jp">${jp}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+</script>
+</body>
+</html>

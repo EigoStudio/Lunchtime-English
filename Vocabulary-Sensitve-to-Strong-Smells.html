@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ハーブや香辛料が苦手なんです！</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-color: #fff9c4;
+    --text-color: #3e2723;
+    --accent-primary: #f44336;
+    --accent-secondary: #4caf50;
+    --card-bg: #ffffff;
+    --border-color: #ffe082;
+  }
+
+  body { font-family: 'Noto Sans JP', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; display: flex; justify-content: center; padding-top: 20px; }
+  .container { width: 95vw; max-width: 850px; background: var(--card-bg); padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); border: 4px solid var(--border-color); }
+  
+  .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  h1 { font-size: 1.3rem; color: var(--accent-primary); margin: 0; }
+
+  /* Audio Switch Styles */
+  .settings { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: bold; }
+  .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--accent-secondary); }
+  input:checked + .slider:before { transform: translateX(20px); }
+
+  .nav-area { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); flex-wrap: wrap; }
+  .nav-btn { background: none; border: none; font-size: 0.8rem; cursor: pointer; color: #9e9e9e; padding: 10px; }
+  .nav-btn.active { color: var(--accent-primary); font-weight: bold; border-bottom: 4px solid var(--accent-primary); }
+
+  .jp-word-container { background: #fffde7; border-radius: 15px; margin: 15px 0; padding: 25px; min-height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 2px dashed #ffd54f; }
+  .jp-word { font-size: 1.6rem; color: #bf360c; font-weight: 700; margin-top: 5px; }
+  
+  .choices-grid { display: grid; gap: 10px; margin-bottom: 20px; grid-template-columns: 1fr 1fr; }
+  .choice-btn { padding: 15px; border: 2px solid #eeeeee; background: white; border-radius: 12px; cursor: pointer; font-size: 1rem; text-align: left; transition: 0.2s; color: var(--text-color); }
+  .choice-btn.selected { border-color: var(--accent-primary); background-color: #ffebee; }
+  .choice-btn.correct { background-color: var(--accent-secondary) !important; color: white; border-color: var(--accent-secondary); }
+  .choice-btn.wrong { background-color: var(--accent-primary) !important; color: white; border-color: var(--accent-primary); }
+
+  .main-btn { width: 100%; padding: 18px; border: none; background: #ff9800; color: white; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+  #nextBtn { background: var(--accent-secondary); display: none; }
+
+  @media (max-width: 600px) { .choices-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header-flex">
+    <h1>ハーブや香辛料が苦手なんです！🌿🚫</h1>
+    <div class="settings">
+      <span>Audio</span>
+      <label class="switch">
+        <input type="checkbox" id="audioToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  
+  <div class="nav-area">
+    <button id="nav1" class="nav-btn active" onclick="changePart(1)">1:無理〜！</button>
+    <button id="nav2" class="nav-btn" onclick="changePart(2)">2:材料</button>
+    <button id="nav3" class="nav-btn" onclick="changePart(3)">3:役立つ表現</button>
+  </div>
+
+  <div id="quizContent">
+    <div id="progress" style="font-size:0.8rem; text-align:right;">Step 1 / --</div>
+    <div class="jp-word-container">
+        <div id="categoryName" style="font-size:0.75rem; color:#f57c00; font-weight:bold;">CATEGORY</div>
+        <div class="jp-word" id="jpWord">読み込み中...</div>
+    </div>
+    <div class="choices-grid" id="choicesGrid"></div>
+    <button class="main-btn" id="checkBtn" onclick="checkAnswer()" disabled>Check Answer</button>
+    <button class="main-btn" id="nextBtn" onclick="nextQuestion()">Next! →</button>
+  </div>
+</div>
+
+<script>
+const allData = {
+  1: [
+    { jp: "わたし、これ大っきらい！", en: "I hate this!", cat: "Daughter" },
+    { jp: "うわっ、これくさ〜い！", en: "It stinks!", cat: "Daughter" },
+    { jp: "これ、ぜったいムリ！（ダメ！）", en: "It's a big No-No for me!", cat: "Daughter" },
+    { jp: "おえっ、きもちわるい！", en: "Gross!", cat: "Daughter" },
+    { jp: "なんか変なにおいがするよ", en: "It smells weird.", cat: "Daughter" },
+    { jp: "わたし、これ食べられない！", en: "I can't eat it!", cat: "Daughter" },
+    { jp: "においが強すぎるよ！", en: "The smell is too strong.", cat: "Daughter" },
+    { jp: "わたし、においに敏感なの", en: "I'm sensitive to smells.", cat: "Daughter" },
+    { jp: "これには慣れてないんだもん", en: "I'm not used to this.", cat: "Daughter" }
+  ],
+  2: [
+    /* 既存のハーブ */
+    { jp: "パクチー", en: "cilantro", cat: "Ingredients" },
+    { jp: "コリアンダー", en: "coriander", cat: "Ingredients" },
+    { jp: "ネギ", en: "spring onions", cat: "Ingredients" },
+    { jp: "ニラ", en: "garlic chives", cat: "Ingredients" },
+    { jp: "セロリ", en: "celery", cat: "Ingredients" },
+    { jp: "レモングラス", en: "lemongrass", cat: "Ingredients" },
+    { jp: "ニンニク", en: "garlic", cat: "Ingredients" },
+    { jp: "ショウガ", en: "ginger", cat: "Ingredients" },
+    /* ベトナム料理の追加食材 */
+    { jp: "ナンプラー / ヌクマム", en: "fish sauce", cat: "Vietnamese Basics" },
+    { jp: "エビペースト", en: "shrimp paste", cat: "Vietnamese Basics" },
+    { jp: "タイバジル", en: "Thai basil", cat: "Aromatics" },
+    { jp: "カー（ガランガル）", en: "galangal", cat: "Aromatics" },
+    { jp: "赤唐辛子", en: "bird's eye chili", cat: "Aromatics" },
+    { jp: "シャロット", en: "shallots", cat: "Aromatics" },
+    { jp: "ライム", en: "lime", cat: "Brighteners" },
+    { jp: "もやし", en: "bean sprouts", cat: "Brighteners" }
+  ],
+  3: [
+    { jp: "これ、からいですか？", en: "Is this spicy?", cat: "Ordering" },
+    { jp: "これにハーブは入っていますか？", en: "Are there any herbs in this?", cat: "Ordering" },
+    { jp: "ハーブは入れないでください！", en: "No herbs, please!", cat: "Ordering" },
+    { jp: "別々にして持ってきてもらえますか？", en: "Can you put them on the side?", cat: "Ordering" },
+    { jp: "これ、取り除いてもらえますか？", en: "Can you remove this?", cat: "Ordering" },
+    { jp: "ハーブなしで作れますか？", en: "Can you make it without herbs?", cat: "Ordering" },
+    { jp: "いろいろお手数かけてすみません。ありがとう！", en: "I'm sorry for all the requests. Thank you!", cat: "Gratitude" },
+    { jp: "助かりました、ありがとう！", en: "Thank you for your help!", cat: "Gratitude" },
+    { jp: "この子は好き嫌いが多いんです", en: "She is a picky eater.", cat: "Adult" },
+    { jp: "それは慣れるとおいしい味ですよ", en: "It's an acquired taste.", cat: "Adult" }
+  ]
+};
+
+let currentPart = 1;
+let currentIndex = 0;
+let selectedWord = null;
+let selectedBtn = null;
+let isSolved = false;
+
+function changePart(p) {
+    currentPart = p;
+    currentIndex = 0;
+    document.querySelectorAll('.nav-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', (idx + 1) === p);
+    });
+    loadQuestion();
+}
+
+function loadQuestion() {
+    isSolved = false;
+    selectedWord = null;
+    const items = allData[currentPart];
+    const item = items[currentIndex];
+    
+    document.getElementById('progress').textContent = `Step ${currentIndex + 1} / ${items.length}`;
+    document.getElementById('categoryName').textContent = item.cat;
+    document.getElementById('jpWord').textContent = item.jp;
+    document.getElementById('checkBtn').style.display = "block";
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('nextBtn').style.display = "none";
+
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = "";
+
+    let choices = [item.en];
+    let distractors = allData[currentPart].map(x => x.en).filter(x => x !== item.en);
+    distractors.sort(() => Math.random() - 0.5);
+    choices.push(...distractors.slice(0, 3));
+    choices.sort(() => Math.random() - 0.5);
+
+    choices.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (isSolved) return;
+            document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedWord = opt;
+            selectedBtn = btn;
+            document.getElementById('checkBtn').disabled = false;
+        };
+        grid.appendChild(btn);
+    });
+}
+
+function checkAnswer() {
+    const item = allData[currentPart][currentIndex];
+    if (selectedWord === item.en) {
+        isSolved = true;
+        selectedBtn.className = "choice-btn correct";
+        document.getElementById('checkBtn').style.display = "none";
+        document.getElementById('nextBtn').style.display = "block";
+        speak(selectedWord);
+    } else {
+        selectedBtn.className = "choice-btn wrong";
+        setTimeout(() => { if(!isSolved) { selectedBtn.className = "choice-btn"; document.getElementById('checkBtn').disabled = true; } }, 800);
+    }
+}
+
+function nextQuestion() {
+    currentIndex++;
+    if (currentIndex < allData[currentPart].length) loadQuestion();
+    else {
+        document.getElementById('quizContent').innerHTML = `<div style="text-align:center; padding:30px;"><h2>Congratulations! 🎉</h2><p>Well done!</p><button class="main-btn" onclick="location.reload()">もう一度やる</button></div>`;
+    }
+}
+
+function speak(text) {
+    if (!document.getElementById('audioToggle').checked) return;
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = "en-US";
+    
+    // アメリカ人女性の声を探す設定
+    const voices = window.speechSynthesis.getVoices();
+    const femaleUSVoice = voices.find(voice => 
+        voice.lang.includes('en-US') && (voice.name.includes('Female') || voice.name.includes('Zira') || voice.name.includes('Google US English') || voice.name.includes('Samantha'))
+    );
+    
+    if (femaleUSVoice) {
+        uttr.voice = femaleUSVoice;
+    }
+    
+    uttr.rate = 0.9;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(uttr);
+}
+
+// 声のリストをロードするために必要
+window.speechSynthesis.onvoiceschanged = () => {};
+window.onload = () => loadQuestion();
+</script>
+</body>
+</html>
