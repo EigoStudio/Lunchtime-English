@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>インター校を訪れる際に役立つ表現：Part 1</title>
+    <style>
+        body { 
+            font-family: 'Helvetica Neue', Arial, sans-serif; 
+            background-color: #fff5f8; 
+            padding: 20px; 
+            color: #333; 
+            line-height: 1.8; 
+            font-size: 1.2rem; 
+        }
+        .container { 
+            max-width: 850px; 
+            margin: auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
+        }
+        h1 { 
+            color: #d63384; 
+            text-align: center; 
+            font-size: 1.8rem; 
+            margin-bottom: 30px;
+        }
+        .level-title { 
+            background: #d63384; 
+            color: white; 
+            padding: 8px 20px; 
+            border-radius: 25px; 
+            display: inline-block; 
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+        }
+        .question { 
+            margin-bottom: 45px; 
+            padding: 25px; 
+            border-bottom: 2px dashed #ffd1dc; 
+            background-color: #fffafb;
+            border-radius: 10px;
+        }
+        .hint { 
+            font-size: 1rem; 
+            color: #c71585; 
+            font-weight: bold;
+            margin-bottom: 15px; 
+            display: block;
+        }
+        .grammar-tip {
+            font-size: 0.95rem;
+            color: #444;
+            background: #fdf2f8;
+            padding: 12px;
+            border-left: 4px solid #d63384;
+            margin-top: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+        select { 
+            padding: 10px; 
+            font-size: 1.1rem; 
+            border: 2px solid #d63384; 
+            border-radius: 8px; 
+            background: #fff; 
+            cursor: pointer; 
+            margin: 8px 0; 
+        }
+        .result { 
+            margin-top: 20px; 
+            font-weight: bold; 
+            display: none; 
+            padding: 20px; 
+            border-radius: 10px; 
+            text-align: center;
+        }
+        .correct { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; display: block; }
+        
+        .check-btn { 
+            display: block;
+            width: 100%;
+            background: #d63384; 
+            color: white; 
+            border: none; 
+            padding: 20px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-size: 1.4rem; 
+            font-weight: bold;
+            margin-top: 20px; 
+        }
+        .check-btn:hover { background: #b02a6a; }
+
+        /* オレンジ色のまとめエリア */
+        .sentence-box { 
+            background: #fff9db; 
+            padding: 25px; 
+            border: 2px solid #fab005;
+            border-radius: 15px; 
+            margin-top: 30px; 
+        }
+        .final-text-block {
+            color: #c2410c;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+            font-size: 1.3rem;
+        }
+        .translation-block {
+            font-size: 0.9rem;
+            color: #777;
+            font-weight: normal;
+            display: block;
+            border-top: 1px solid #ffd1dc;
+            padding-top: 15px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🌍 パート1：娘の様子と英語での交流</h1>
+    <p style="text-align: center;">娘さんの状況を詳しく説明し、先生に協力をお願いしましょう！</p>
+
+    <div class="level-title">Level 1：基礎編</div>
+    
+    <div class="question">
+        <p><strong>① 「娘はベトナム語を話せません」</strong></p>
+        My daughter 
+        <select id="q1">
+            <option value="">--選択--</option>
+            <option value="wrong">don't</option>
+            <option value="correct">cannot</option>
+        </select> 
+        speak Vietnamese.
+    </div>
+
+    <div class="question">
+        <p><strong>② 「彼女が一人きりにならないか心配です」</strong></p>
+        I am 
+        <select id="q2">
+            <option value="">--選択--</option>
+            <option value="correct">worried</option>
+            <option value="wrong">scared</option>
+        </select>
+        that she will be 
+        <select id="q3">
+            <option value="">--選択--</option>
+            <option value="correct">alone</option>
+            <option value="wrong">lonely</option>
+        </select>.
+    </div>
+
+    <hr>
+
+    <div class="level-title">Level 2：上級編（想いを伝える）</div>
+    
+    <div class="question">
+        <p><strong>「娘は入学を楽しみにしていますが、まだベトナム語を話しません」</strong></p>
+        My daughter is 
+        <select id="q4"><option value="">①ワクワクしている</option><option value="correct">excited</option></select>
+        to <select id="q5"><option value="">②入る</option><option value="correct">join</option></select>,
+        but she <select id="q6"><option value="">③話さない</option><option value="correct">doesn't</option></select>
+        speak Vietnamese yet.
+
+        <div class="grammar-tip">
+            <strong>ワンポイント解説：</strong><br>
+            <b>"doesn't speak"</b> を使うことで、「（能力的に不可能というより）今の環境ではまだ話しません」という自然なニュアンスになります。
+        </div>
+    </div>
+
+    <div class="question">
+        <p><strong>「休み時間に孤立しないか少し心配しています」</strong></p>
+        So I’m a <select id="q7"><option value="">①少し</option><option value="correct">bit</option></select>
+        <select id="q8"><option value="">②心配な</option><option value="correct">concerned</option></select>
+        that she <select id="q9"><option value="">③〜かも</option><option value="correct">might</option></select>
+        feel isolated <select id="q10"><option value="">④もし〜なら</option><option value="correct">if</option></select>
+        her classmates speak Vietnamese <select id="q11"><option value="">⑤〜の間</option><option value="correct">during</option></select>
+        <select id="q12"><option value="">⑥休み時間</option><option value="correct">breaks</option></select>.
+
+        <div class="grammar-tip">
+            <strong>ワンポイント解説：</strong><br>
+            <b>"concerned"</b> は "worried" よりも少し「関心を持って懸念している」という大人っぽく丁寧な響きになります。
+        </div>
+    </div>
+
+    <div class="question">
+        <p><strong>「彼女の周りでは、できるだけ英語を話すよう促してください」</strong></p>
+        Could you please <select id="q13"><option value="">①促す</option><option value="correct">encourage</option></select>
+        the students to speak English as much as possible, 
+        <select id="q14"><option value="">②特に</option><option value="correct">especially</option></select>
+        when they are <select id="q15"><option value="">③周りに</option><option value="correct">around</option></select> her?
+    </div>
+
+    <button class="check-btn" onclick="checkAnswers()">正解をチェックする！</button>
+
+    <div id="finalResult" class="result"></div>
+    
+    <div id="fullSentence" class="sentence-box" style="display:none;">
+        <p>✨ <strong>先生にそのまま伝えられる最強フレーズ：</strong></p>
+        <div class="final-text-block">
+            My daughter is excited to join, but she doesn't speak Vietnamese yet. 
+            So I’m a bit concerned that she might feel isolated if her classmates speak Vietnamese during breaks. <br><br>
+            Could you please encourage the students to speak English as much as possible, especially when they are around her?
+        </div>
+        <div class="translation-block">
+            【和訳】<br>
+            娘は入学を楽しみにしていますが、まだベトナム語を話せません。ですので、休み時間にクラスメイトがベトナム語を話すと、娘が孤立感を感じてしまうのではないかと少し心配しています。彼女の周りにいる時は特に、できるだけ英語で話すよう生徒たちに促していただけますでしょうか？
+        </div>
+    </div>
+</div>
+
+<script>
+    function checkAnswers() {
+        const selects = document.querySelectorAll('select');
+        let allCorrect = true;
+        selects.forEach(s => {
+            if (s.value === 'correct') {
+                s.style.borderColor = '#28a745';
+                s.style.backgroundColor = '#f0fff4';
+            } else {
+                s.style.borderColor = '#dc3545';
+                s.style.backgroundColor = '#fff5f5';
+                allCorrect = false;
+            }
+        });
+
+        const resultDiv = document.getElementById('finalResult');
+        const sentenceBox = document.getElementById('fullSentence');
+        resultDiv.style.display = "block";
+        
+        if (allCorrect) {
+            resultDiv.innerHTML = "🎉 すばらしい！復習バッチリですね！";
+            resultDiv.className = "result correct";
+            sentenceBox.style.display = "block";
+        } else {
+            resultDiv.innerHTML = "惜しい！赤くなった枠のところをもう一度チェック！";
+            resultDiv.className = "result";
+            resultDiv.style.backgroundColor = "#fff3cd";
+            resultDiv.style.color = "#856404";
+            sentenceBox.style.display = "none";
+        }
+        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+</script>
+
+</body>
+</html>

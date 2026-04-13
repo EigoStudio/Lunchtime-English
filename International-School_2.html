@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>インター校を訪れる際に役立つ表現：Part 2</title>
+    <style>
+        /* Part 1と共通のローズ・ピンク系デザイン */
+        body { 
+            font-family: 'Helvetica Neue', Arial, sans-serif; 
+            background-color: #fff5f8; 
+            padding: 20px; 
+            color: #333; 
+            line-height: 1.8; 
+            font-size: 1.2rem; 
+        }
+        .container { 
+            max-width: 850px; 
+            margin: auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
+        }
+        h1 { 
+            color: #d63384; 
+            text-align: center; 
+            font-size: 1.8rem; 
+            margin-bottom: 30px;
+        }
+        .level-title { 
+            background: #d63384; 
+            color: white; 
+            padding: 8px 20px; 
+            border-radius: 25px; 
+            display: inline-block; 
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+        }
+        .question { 
+            margin-bottom: 45px; 
+            padding: 25px; 
+            border-bottom: 2px dashed #ffd1dc; 
+            background-color: #fffafb;
+            border-radius: 10px;
+        }
+        .hint { 
+            font-size: 1rem; 
+            color: #c71585; 
+            font-weight: bold;
+            margin-bottom: 15px; 
+            display: block;
+        }
+        .grammar-tip {
+            font-size: 0.95rem;
+            color: #444;
+            background: #fdf2f8;
+            padding: 12px;
+            border-left: 4px solid #d63384;
+            margin-top: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+        select { 
+            padding: 10px; 
+            font-size: 1.1rem; 
+            border: 2px solid #d63384; 
+            border-radius: 8px; 
+            background: #fff; 
+            cursor: pointer; 
+            margin: 8px 0; 
+        }
+        .result { 
+            margin-top: 20px; 
+            font-weight: bold; 
+            display: none; 
+            padding: 20px; 
+            border-radius: 10px; 
+            text-align: center;
+        }
+        .correct { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; display: block; }
+        
+        .check-btn { 
+            display: block;
+            width: 100%;
+            background: #d63384; 
+            color: white; 
+            border: none; 
+            padding: 20px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-size: 1.4rem; 
+            font-weight: bold;
+            margin-top: 20px; 
+        }
+        .check-btn:hover { background: #b02a6a; }
+
+        /* 正解発表エリア（英語ブロックと和訳ブロック） */
+        .sentence-box { 
+            background: #fff9db; 
+            padding: 25px; 
+            border: 2px solid #fab005;
+            border-radius: 15px; 
+            margin-top: 30px; 
+        }
+        .final-text-block {
+            color: #c2410c;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+            font-size: 1.3rem;
+        }
+        .translation-block {
+            font-size: 0.9rem; /* 和訳を小さく */
+            color: #777;
+            font-weight: normal;
+            display: block;
+            border-top: 1px solid #ffd1dc;
+            padding-top: 15px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🌍 パート2：学校のルールと確実な報告</h1>
+    <p style="text-align: center;">学校の方針を確認し、トラブル時の報告を約束してもらいましょう！</p>
+
+    <div class="level-title">Level 1：基礎編（3大センテンス）</div>
+    
+    <div class="question">
+        <p><strong>① 「英語だけ」というルールはありますか？</strong></p>
+        Does the school 
+        <select id="q1">
+            <option value="">--選択--</option>
+            <option value="correct">have</option>
+            <option value="wrong">do</option>
+        </select>
+        an "English Only" 
+        <select id="q2">
+            <option value="">--選択--</option>
+            <option value="wrong">book</option>
+            <option value="correct">rule</option>
+        </select>?
+    </div>
+
+    <div class="question">
+        <p><strong>② 娘のことを「すべて」私に教えてください。</strong></p>
+        Please 
+        <select id="q3">
+            <option value="">--選択--</option>
+            <option value="correct">tell</option>
+            <option value="wrong">talk</option>
+        </select>
+        me 
+        <select id="q4">
+            <option value="">--選択--</option>
+            <option value="wrong">anything</option>
+            <option value="correct">everything</option>
+        </select>
+        about my daughter.
+    </div>
+
+    <div class="question">
+        <p><strong>③ 何かあったら、私に電話してください。</strong></p>
+        Please 
+        <select id="q5">
+            <option value="">--選択--</option>
+            <option value="correct">call</option>
+            <option value="wrong">speak</option>
+        </select>
+        me 
+        <select id="q6">
+            <option value="">--選択--</option>
+            <option value="correct">if</option>
+            <option value="wrong">when</option>
+        </select>
+        anything happens.
+    </div>
+
+    <hr>
+
+    <div class="level-title">Level 2：上級編（より確実に伝える）</div>
+    
+    <div class="question">
+        <p><strong>「授業時間中、学校に『英語のみ』の方針はありますか？もしあれば、徹底してほしいです」</strong></p>
+        <span class="hint">💡 丁寧な言い回し（Policy / Reinforce）</span>
+        Does the school have an "English Only" 
+        <select id="q7">
+            <option value="">①方針</option>
+            <option value="correct">policy</option>
+            <option value="wrong">rule</option>
+        </select>
+        during school hours?
+        <br>
+        If so, I would 
+        <select id="q8">
+            <option value="">②有難い</option>
+            <option value="correct">appreciate</option>
+            <option value="wrong">happy</option>
+        </select>
+        it if the teachers could 
+        <select id="q9">
+            <option value="">③徹底する</option>
+            <option value="correct">reinforce</option>
+            <option value="wrong">check</option>
+        </select>
+        that.
+    </div>
+
+    <div class="question">
+        <p><strong>「何かあった時は、どんな小さなことでも私に報告してください」</strong></p>
+        <span class="hint">💡 「知らせ続ける」というフレーズ（Keep informed）</span>
+        Please 
+        <select id="q10">
+            <option value="">①〜に保つ</option>
+            <option value="correct">keep</option>
+            <option value="wrong">tell</option>
+        </select>
+        me 
+        <select id="q11">
+            <option value="">②知らされている</option>
+            <option value="correct">informed</option>
+            <option value="wrong">know</option>
+        </select>
+        if anything happens at school.<br>
+        I need to know about my daughter, even 
+        <select id="q12">
+            <option value="">③小さな</option>
+            <option value="correct">small</option>
+            <option value="wrong">big</option>
+        </select>
+        things.
+
+        <div class="grammar-tip">
+            <strong>ワンポイント解説：</strong><br>
+            <b>"Keep me informed"</b> は、先生に状況報告を約束してもらうための非常に丁寧でしっかりした表現です。
+        </div>
+    </div>
+
+    <button class="check-btn" onclick="checkAnswers()">正解をチェックする！</button>
+
+    <div id="finalResult" class="result"></div>
+    
+    <div id="fullSentence" class="sentence-box" style="display:none;">
+        <p>✨ <strong>先生に伝える確実なメッセージ：</strong></p>
+        <div class="final-text-block">
+            Does the school have an 'English Only' policy during school hours? 
+            If so, I would appreciate it if the teachers could reinforce that. <br><br>
+            Please keep me informed if anything happens at school. 
+            I need to know about my daughter, even small things.
+        </div>
+        <div class="translation-block">
+            【和訳】<br>
+            授業時間中、学校には「英語のみ」という方針はありますか？もしそうであれば、先生方にその方針を徹底（強化）していただけると有難いです。<br>
+            学校で何かあった際は、私に報告するようにしてください。どんなに小さなことでも、娘のことを知っておきたいのです。
+        </div>
+    </div>
+</div>
+
+<script>
+    function checkAnswers() {
+        const selects = document.querySelectorAll('select');
+        let allCorrect = true;
+        
+        selects.forEach(s => {
+            if (s.value === 'correct') {
+                s.style.borderColor = '#28a745';
+                s.style.backgroundColor = '#f0fff4';
+            } else {
+                s.style.borderColor = '#dc3545';
+                s.style.backgroundColor = '#fff5f5';
+                allCorrect = false;
+            }
+        });
+
+        const resultDiv = document.getElementById('finalResult');
+        const sentenceBox = document.getElementById('fullSentence');
+        
+        resultDiv.style.display = "block";
+        
+        if (allCorrect) {
+            resultDiv.innerHTML = "🎉 完璧です！Part 2も完全マスターですね！";
+            resultDiv.className = "result correct";
+            sentenceBox.style.display = "block";
+        } else {
+            resultDiv.innerHTML = "惜しい！赤くなった枠のところをもう一度選んでみましょう。";
+            resultDiv.className = "result";
+            resultDiv.style.backgroundColor = "#fff3cd";
+            resultDiv.style.color = "#856404";
+            sentenceBox.style.display = "none";
+        }
+        
+        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+</script>
+
+</body>
+</html>
