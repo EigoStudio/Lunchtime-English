@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who is she talking to?</title>
+    <style>
+        body { 
+            font-family: 'Helvetica Neue', Arial, sans-serif; 
+            background-color: #f4f7f9; 
+            color: #2c3e50; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container { 
+            width: 95%;
+            max-width: 800px; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+        }
+        h1 { 
+            color: #1a3a5f; 
+            border-bottom: 2px solid #1a3a5f;
+            padding-bottom: 10px;
+            font-size: 1.6rem;
+            margin-top: 0;
+        }
+        .question-text {
+            font-weight: bold;
+            margin: 20px 0;
+            display: block;
+            font-size: 1.2rem;
+            color: #34495e;
+        }
+        .dialogue {
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            position: relative;
+        }
+        .speaker-line {
+            display: block;
+            margin-bottom: 8px;
+        }
+        .speaker-name {
+            font-weight: bold;
+            min-width: 85px;
+            display: inline-block;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+        }
+        .option-btn {
+            flex: 1;
+            min-width: 180px;
+            padding: 12px 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 1px solid #1a3a5f;
+            border-radius: 6px;
+            background-color: white;
+            color: #1a3a5f;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        @media (max-width: 480px) {
+            .option-btn { min-width: 45%; }
+        }
+        .option-btn:hover:not(:disabled) { background-color: #f0f4f8; }
+        .option-btn.correct { background-color: #27ae60 !important; color: white !important; border-color: #27ae60; }
+        .option-btn.incorrect { background-color: #e74c3c !important; color: white !important; border-color: #e74c3c; }
+        
+        .feedback-area {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #e8f4fd;
+            border-left: 5px solid #3498db;
+            display: none;
+            position: relative;
+        }
+        .play-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background-color: #1a3a5f;
+            color: white;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 #0d1f33;
+            transition: 0.1s;
+        }
+        .play-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #0d1f33; }
+        .play-btn.playing { background-color: #ff4757; box-shadow: 0 4px 0 #b33939; }
+
+        .feedback-title { font-weight: bold; color: #1a3a5f; margin-bottom: 10px; }
+        .translation { margin-bottom: 15px; color: #444; font-size: 0.95rem; line-height: 1.6; }
+        .explanation { font-size: 0.95rem; color: #555; }
+        .nav-buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .nav-btn {
+            padding: 10px 25px;
+            background-color: #1a3a5f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .nav-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Who is she talking to?</h1>
+    <div id="quiz-area">
+        <span id="location-text" class="question-text"></span>
+        <div id="dialogue-box" class="dialogue"></div>
+        <div id="options-box" class="options"></div>
+        
+        <div id="feedback-area" class="feedback-area">
+            <button class="play-btn" id="voice-btn" onclick="speakDialogue()" title="Read aloud">🔊</button>
+            <div class="feedback-title">Review & Explanation</div>
+            <div class="translation" id="trans-text"></div>
+            <div class="explanation" id="expl-text"></div>
+        </div>
+    </div>
+    <div class="nav-buttons">
+        <button id="prevBtn" class="nav-btn" onclick="changeQuestion(-1)" disabled>Back</button>
+        <button id="nextBtn" class="nav-btn" onclick="changeQuestion(1)">Next</button>
+    </div>
+</div>
+
+<script>
+    // クイズデータの定義
+    let quizData = [
+        {
+            id: 1,
+            location: "At the main entrance",
+            dialogue: [
+                { name: "Mother", text: "Hello. I am here to see the principal." },
+                { name: "Staff", text: "Hello. Please sign your name here." }
+            ],
+            options: ["Receptionist", "Janitor", "School Nurse"],
+            correct: "Receptionist",
+            translation: "母：こんにちは。校長先生に会いに来ました。<br>職員：こんにちは。こちらにお名前をご記入ください。",
+            explanation: "来客対応や入校手続きを行うのは Receptionist です。"
+        },
+        {
+            id: 2,
+            location: "In the hallway",
+            dialogue: [
+                { name: "Mother", text: "Oh no! I spilled my juice." },
+                { name: "Staff", text: "That's okay. I will wipe it up." }
+            ],
+            options: ["Teacher", "Janitor", "Bus Driver"],
+            correct: "Janitor",
+            translation: "母：大変！ジュースをこぼしてしまいました。<br>職員：大丈夫ですよ。私が拭いておきます。",
+            explanation: "校内の清掃・管理を担当する人を Janitor と呼びます。最近では Custodian と呼ぶことも一般的です。"
+        },
+        {
+            id: 3,
+            location: "In the medical room",
+            dialogue: [
+                { name: "Staff", text: "You have a fever. Let's rest on the bed." },
+                { name: "Daughter", text: "Okay." }
+            ],
+            options: ["School Nurse", "Principal", "Librarian"],
+            correct: "School Nurse",
+            translation: "職員：熱がありますね。ベッドで休みましょう。<br>娘：わかりました。",
+            explanation: "保健室は Nurse's office, Infirmary, Sick room などとも呼ばれます。対応するのは School Nurse です。"
+        },
+        {
+            id: 4,
+            location: "In the library",
+            dialogue: [
+                { name: "Daughter", text: "Can I borrow this storybook?" },
+                { name: "Staff", text: "Sure! Please bring it back next week." }
+            ],
+            options: ["Teacher", "Librarian", "Bus Driver"],
+            correct: "Librarian",
+            translation: "娘：この本を借りてもいいですか？<br>職員：もちろんです！来週返してくださいね。",
+            explanation: "司書は Librarian です。本を借りる時は check out、返す時は return を使います。"
+        },
+        {
+            id: 5,
+            location: "At the bus stop",
+            dialogue: [
+                { name: "Daughter", text: "Hi! Is this bus going to Thao Dien?" },
+                { name: "Staff", text: "Yes! Come in, and put on your seatbelt." }
+            ],
+            options: ["Janitor", "Bus Driver", "Receptionist"],
+            correct: "Bus Driver",
+            translation: "娘：こんにちは！このバスはタオディエンに行きますか？<br>職員：はい！乗って、シートベルトを締めてくださいね。",
+            explanation: "行き先の確認や安全確認を行うのは Bus Driver です。"
+        },
+        {
+            id: 6,
+            location: "In the cafeteria",
+            dialogue: [
+                { name: "Daughter", text: "The chicken looks good." },
+                { name: "Staff", text: "Here you go! Enjoy your lunch." }
+            ],
+            options: ["Lunch Lady", "School Nurse", "Teacher"],
+            correct: "Lunch Lady",
+            translation: "娘：チキンがおいしそう。<br>職員：はいどうぞ！ランチを楽しんでね。",
+            explanation: "給食スタッフは Lunch Lady のほか、Cafeteria worker などとも呼ばれます。"
+        },
+        {
+            id: 7,
+            location: "In the counseling room",
+            dialogue: [
+                { name: "Mother", text: "I am worried about my daughter." },
+                { name: "Staff", text: "I understand. Let's talk about it." }
+            ],
+            options: ["School Counselor", "Janitor", "Principal"],
+            correct: "School Counselor",
+            translation: "母：娘のことが心配なんです。<br>職員：分かります。そのことについてお話ししましょう。",
+            explanation: "専門的に相談に乗るスタッフは School Counselor です。"
+        },
+        {
+            id: 8,
+            location: "In the Principal's office",
+            dialogue: [
+                { name: "Staff", text: "Thank you for coming. There was an incident on the playground." },
+                { name: "Mother", text: "Oh no. What happened? Is my daughter okay?" },
+                { name: "Staff", text: "She is fine now, but a boy pulled her hair. We need to discuss how to handle this." }
+            ],
+            options: ["Teacher", "Principal", "Librarian"],
+            correct: "Principal",
+            translation: "職員：お越しいただきありがとうございます。校庭でトラブルがありまして。<br>母：なんてこと。何があったのですか？娘は大丈夫でしょうか？<br>職員：今は落ち着いています。ただ、男の子に髪を引っ張られてしまいまして。今後の対応についてお話しさせてください。",
+            explanation: "重大な報告や公式な面談（Parent-Principal meeting）は、校長(Principal)のオフィスで行われます。"
+        },
+        {
+            id: 9,
+            location: "In the classroom",
+            dialogue: [
+                { name: "Staff", text: "Good morning, class! Let's start the morning circle." },
+                { name: "Daughter", text: "Good morning!" }
+            ],
+            options: ["Homeroom Teacher", "Receptionist", "School Nurse"],
+            correct: "Homeroom Teacher",
+            translation: "職員：皆さんおはよう！朝の会を始めましょう。<br>娘：おはようございます！",
+            explanation: "教室で朝の会を主導するのは Homeroom Teacher です。"
+        }
+    ];
+
+    let currentIndex = 0;
+
+    // 配列をシャッフルする関数（フィッシャー–イェーツのシャッフル）
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // クイズ全体の初期化（問題と選択肢のシャッフル）
+    function initQuiz() {
+        shuffleArray(quizData); // 問題の順番をシャッフル
+        quizData.forEach(item => {
+            shuffleArray(item.options); // 各問題の選択肢もシャッフル
+        });
+        currentIndex = 0;
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const data = quizData[currentIndex];
+        // 問題番号（シャッフル後の順番に基づき1-9を表示）
+        document.getElementById('location-text').innerText = `Q${currentIndex + 1}: ${data.location}`;
+        
+        const dialogueBox = document.getElementById('dialogue-box');
+        dialogueBox.innerHTML = data.dialogue.map(line => `
+            <div class="speaker-line">
+                <span class="speaker-name">${line.name}:</span> ${line.text}
+            </div>
+        `).join('');
+
+        const optionsBox = document.getElementById('options-box');
+        optionsBox.innerHTML = '';
+        data.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => check(btn, opt);
+            optionsBox.appendChild(btn);
+        });
+
+        document.getElementById('feedback-area').style.display = 'none';
+        document.getElementById('prevBtn').disabled = (currentIndex === 0);
+        document.getElementById('nextBtn').disabled = (currentIndex === quizData.length - 1);
+        
+        window.speechSynthesis.cancel();
+        const voiceBtn = document.getElementById('voice-btn');
+        if(voiceBtn) voiceBtn.classList.remove('playing');
+    }
+
+    function check(btn, selected) {
+        const data = quizData[currentIndex];
+        const allBtns = document.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+        if (selected === data.correct) {
+            btn.classList.add('correct');
+        } else {
+            btn.classList.add('incorrect');
+            allBtns.forEach(b => { if (b.innerText === data.correct) b.classList.add('correct'); });
+        }
+        document.getElementById('trans-text').innerHTML = `<strong>Translation:</strong><br>${data.translation}`;
+        document.getElementById('expl-text').innerHTML = `<strong>Note:</strong><br>${data.explanation}`;
+        document.getElementById('feedback-area').style.display = 'block';
+    }
+
+    function getFemaleVoice() {
+        const voices = window.speechSynthesis.getVoices();
+        const preferred = ["Google US English", "Microsoft Zira", "Samantha", "Female"];
+        let selected = null;
+        for (let name of preferred) {
+            selected = voices.find(v => (v.lang === 'en-US' || v.lang === 'en_US') && v.name.includes(name));
+            if (selected) break;
+        }
+        return selected || voices.find(v => v.lang.startsWith('en'));
+    }
+
+    function speakDialogue() {
+        window.speechSynthesis.cancel();
+        const data = quizData[currentIndex];
+        const fullText = data.dialogue.map(line => line.text).join(' ');
+        
+        const utterance = new SpeechSynthesisUtterance(fullText);
+        const v = getFemaleVoice();
+        if (v) utterance.voice = v;
+        
+        utterance.lang = 'en-US';
+        utterance.rate = 0.7; 
+        
+        const btn = document.getElementById('voice-btn');
+        btn.classList.add('playing');
+        utterance.onend = () => btn.classList.remove('playing');
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    window.speechSynthesis.onvoiceschanged = getFemaleVoice;
+
+    function changeQuestion(dir) {
+        currentIndex += dir;
+        renderQuestion();
+    }
+
+    // クイズ開始
+    initQuiz();
+</script>
+
+</body>
+</html>

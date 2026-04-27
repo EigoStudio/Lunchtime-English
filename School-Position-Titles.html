@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Position Titles</title>
+    <style>
+        body { 
+            font-family: 'Helvetica Neue', Arial, sans-serif; 
+            background-color: #f4f7f9; 
+            color: #2c3e50; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container { 
+            width: 95%;
+            max-width: 800px; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            text-align: center;
+        }
+        h1 { 
+            color: #1a3a5f; 
+            border-bottom: 2px solid #1a3a5f;
+            padding-bottom: 10px;
+            font-size: 1.6rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .progress {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .image-container {
+            width: 100%;
+            height: 350px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border: 1px solid #e0e6ed;
+        }
+        .quiz-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .options {
+            display: flex;
+            flex-direction: row; 
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .option-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border: 2px solid #1a3a5f;
+            border-radius: 8px;
+            background-color: white;
+            color: #1a3a5f;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .option-btn:hover:not(:disabled) { background-color: #f0f4f8; }
+        .option-btn.correct { background-color: #27ae60 !important; color: white !important; border-color: #27ae60; }
+        .option-btn.incorrect { background-color: #e74c3c !important; color: white !important; border-color: #e74c3c; }
+
+        .feedback-area {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #e8f4fd;
+            border-left: 5px solid #3498db;
+            display: none;
+            text-align: left;
+        }
+        .ans-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        .play-btn {
+            width: 40px;
+            height: 40px;
+            background-color: #1a3a5f;
+            color: white;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 0 #0d1f33;
+            flex-shrink: 0;
+        }
+        .play-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #0d1f33; }
+        .play-btn.playing { background-color: #ff4757; box-shadow: 0 3px 0 #b33939; }
+
+        .feedback-title { font-weight: bold; color: #1a3a5f; font-size: 1.2rem; }
+        .note-text { font-size: 0.95rem; color: #555; line-height: 1.6; border-top: 1px solid #d0e0f0; padding-top: 10px; }
+
+        .nav-buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .nav-btn {
+            padding: 10px 25px;
+            background-color: #1a3a5f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .nav-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>School Position Titles</h1>
+    <div class="progress" id="progress-text">Question 1 / 9</div>
+    
+    <div class="image-container">
+        <img id="quiz-img" src="" alt="Quiz Image" class="quiz-image">
+    </div>
+
+    <div class="options" id="options-box"></div>
+
+    <div id="feedback-area" class="feedback-area">
+        <div class="ans-header">
+            <div class="feedback-title" id="correct-answer-display"></div>
+            <button class="play-btn" id="voice-btn" onclick="speakAnswer()">🔊</button>
+        </div>
+        <div class="note-text" id="note-display"></div>
+    </div>
+
+    <div class="nav-buttons">
+        <button id="prevBtn" class="nav-btn" onclick="changeQuestion(-1)">Back</button>
+        <button id="nextBtn" class="nav-btn" onclick="changeQuestion(1)">Next</button>
+    </div>
+</div>
+
+<script>
+    let quizData = [
+        { correct: "Receptionist", img: "images-School-Position-Titles/receptionist.jpg", options: ["Receptionist", "Principal", "Homeroom Teacher"], note: "Other titles: Front desk staff, Secretary." },
+        { correct: "Janitor", img: "images-School-Position-Titles/janitor.jpg", options: ["Janitor", "Bus Driver", "Librarian"], note: "Other titles: Custodian, Caretaker." },
+        { correct: "School Nurse", img: "images-School-Position-Titles/school nurse.jpg", options: ["School Nurse", "School Counselor", "Lunch Lady"], note: "Other titles: Health room teacher." },
+        { correct: "Librarian", img: "images-School-Position-Titles/librarian.jpg", options: ["Librarian", "Homeroom Teacher", "Principal"], note: "Other titles: Media specialist." },
+        { correct: "Bus Driver", img: "images-School-Position-Titles/bus-driver.jpg", options: ["Bus Driver", "Janitor", "Receptionist"], note: "Other titles: School bus operator." },
+        { correct: "Lunch Lady", img: "images-School-Position-Titles/lunch-lady.jpg", options: ["Lunch Lady", "Homeroom Teacher", "School Nurse"], note: "Other titles: Cafeteria worker, Food service staff." },
+        { correct: "School Counselor", img: "images-School-Position-Titles/school-counselor.jpg", options: ["School Counselor", "Principal", "Librarian"], note: "Other titles: Guidance counselor." },
+        { correct: "Principal", img: "images-School-Position-Titles/principal.jpg", options: ["Principal", "Homeroom Teacher", "Receptionist"], note: "Other titles: Headmaster, Headteacher." },
+        { correct: "Teacher", img: "images-School-Position-Titles/teacher.jpg", options: ["Teacher", "Librarian", "School Counselor"], note: "Other titles: Educator." }
+    ];
+
+    let currentIndex = 0;
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function renderQuestion() {
+        // 音声停止とボタン状態のリセット
+        window.speechSynthesis.cancel();
+        const voiceBtn = document.getElementById('voice-btn');
+        if(voiceBtn) voiceBtn.classList.remove('playing');
+
+        const data = quizData[currentIndex];
+        
+        // 画面更新
+        document.getElementById('progress-text').innerText = `Question ${currentIndex + 1} / ${quizData.length}`;
+        document.getElementById('quiz-img').src = data.img;
+        document.getElementById('feedback-area').style.display = 'none';
+
+        // 選択肢の描画（毎回シャッフルして生成）
+        const optionsBox = document.getElementById('options-box');
+        optionsBox.innerHTML = '';
+        
+        // 表示用に一時的なコピーをシャッフル
+        let displayOptions = [...data.options];
+        shuffleArray(displayOptions);
+
+        displayOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => check(btn, opt);
+            optionsBox.appendChild(btn);
+        });
+
+        // ナビゲーションボタンの制御
+        document.getElementById('prevBtn').disabled = (currentIndex === 0);
+        document.getElementById('nextBtn').disabled = (currentIndex === quizData.length - 1);
+    }
+
+    function check(btn, selected) {
+        const data = quizData[currentIndex];
+        const allBtns = document.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+
+        if (selected === data.correct) {
+            btn.classList.add('correct');
+        } else {
+            btn.classList.add('incorrect');
+            allBtns.forEach(b => {
+                if (b.innerText === data.correct) b.classList.add('correct');
+            });
+        }
+
+        document.getElementById('correct-answer-display').innerText = data.correct;
+        document.getElementById('note-display').innerHTML = data.note;
+        document.getElementById('feedback-area').style.display = 'block';
+    }
+
+    function changeQuestion(step) {
+        let newIndex = currentIndex + step;
+        if (newIndex >= 0 && newIndex < quizData.length) {
+            currentIndex = newIndex;
+            renderQuestion();
+            // ページ上部へスクロール（長い場合用）
+            window.scrollTo(0, 0);
+        }
+    }
+
+    function speakAnswer() {
+        window.speechSynthesis.cancel();
+        const data = quizData[currentIndex];
+        const utterance = new SpeechSynthesisUtterance(data.correct);
+        
+        const voices = window.speechSynthesis.getVoices();
+        const preferred = ["Google US English", "Microsoft Zira", "Samantha", "Female"];
+        let v = null;
+        for (let name of preferred) {
+            v = voices.find(voice => (voice.lang.includes('en-US')) && voice.name.includes(name));
+            if (v) break;
+        }
+        
+        utterance.voice = v || voices.find(voice => voice.lang.includes('en'));
+        utterance.lang = 'en-US';
+        utterance.rate = 0.8;
+        
+        const btn = document.getElementById('voice-btn');
+        btn.classList.add('playing');
+        utterance.onend = () => btn.classList.remove('playing');
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // 初期化
+    shuffleArray(quizData);
+    window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+    renderQuestion();
+</script>
+
+</body>
+</html>
