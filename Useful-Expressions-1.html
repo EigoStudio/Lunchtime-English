@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Useful Expressions Series - Vol.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-navy: #1a365d;
+            --secondary-blue: #2b6cb0;
+            --success-teal: #2c7a7b;
+            --accent-gold: #b7791f;
+            --bg-color: #f7fafc;
+            --text-color: #2d3748;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Poppins', 'Noto Sans JP', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 750px;
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+        h1 { color: var(--primary-navy); font-size: 2rem; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; }
+        .subtitle { color: #718096; font-size: 1rem; margin-bottom: 30px; font-weight: 500; }
+        
+        .quiz-page { display: none; animation: fadeIn 0.4s ease-out; }
+        .quiz-page.active { display: block; }
+        
+        .page-indicator {
+            background: #ebf8ff; color: #2b6cb0; padding: 6px 16px; border-radius: 20px;
+            display: inline-block; margin-bottom: 25px; font-weight: 600; font-size: 0.95rem;
+        }
+        
+        /* シチュエーション表示エリア */
+        .situation-box {
+            background: #f8fafc; border-left: 5px solid var(--secondary-blue); border-radius: 8px;
+            padding: 25px; margin-bottom: 25px; text-align: left;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .situation-title { font-size: 0.85rem; text-transform: uppercase; color: #a0aec0; font-weight: 700; margin-bottom: 5px; letter-spacing: 1px; }
+        .situation-jp { font-size: 1.2rem; color: var(--text-color); font-weight: 700; line-height: 1.6; }
+        
+        /* 問いかけエリア */
+        .question-prompt {
+            font-size: 1.3rem; font-weight: 600; color: var(--accent-gold);
+            margin: 25px auto; padding: 10px; border-bottom: 2px dashed #e2e8f0; max-width: 400px;
+        }
+
+        /* 答え合わせボタン */
+        .check-btn {
+            background: var(--primary-navy); color: white; font-family: inherit;
+            font-size: 1.2rem; font-weight: 600; padding: 14px 50px; border: none;
+            border-radius: 8px; cursor: pointer; margin: 15px 0;
+            transition: all 0.2s; letter-spacing: 0.5px;
+        }
+        .check-btn:hover { background: var(--secondary-blue); }
+
+        /* 答えのボックス */
+        .answer-box {
+            display: none; opacity: 0; transform: translateY(10px); transition: all 0.3s ease-out;
+            background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 30px 20px; margin: 30px 0;
+        }
+        .answer-box.show { display: block; opacity: 1; transform: translateY(0); }
+        .answer-title { color: var(--success-teal); font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* フレーズのデザイン（完全なセンテンス・前置詞行替え対応） */
+        .answer-phrases {
+            display: flex; flex-direction: column; gap: 15px; align-items: center; margin-bottom: 20px;
+        }
+        .phrase-item {
+            font-size: 1.8rem; font-weight: 700; color: var(--primary-navy); line-height: 1.5;
+            background: white; padding: 15px 25px; border-radius: 8px; border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02); width: 100%; max-width: 650px; text-align: center;
+        }
+        .line-break { display: block; }
+        .answer-jp { font-size: 1.1rem; color: #4a5568; font-weight: 500; line-height: 1.6; max-width: 600px; margin: 0 auto; text-align: center; white-space: pre-line; }
+
+        /* コントロール周り */
+        .controls { margin-top: 35px; display: flex; justify-content: center; }
+        .btn-row { display: flex; justify-content: center; align-items: center; gap: 20px; width: 100%; max-width: 600px; }
+        
+        button { font-family: inherit; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+        
+        .speaker-btn {
+            background: white; color: var(--success-teal); font-size: 1rem;
+            padding: 8px 20px; border-radius: 6px; border: 1px solid #bbf7d0;
+            display: inline-flex; justify-content: center; align-items: center; gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .speaker-btn:hover { background: #f0fdf4; }
+        
+        .nav-btn { padding: 12px 35px; font-size: 1.05rem; border-radius: 8px; color: white; min-width: 140px; }
+        .prev-btn { background: #718096; }
+        .prev-btn:hover { background: #4a5568; }
+        .next-btn { background: var(--secondary-blue); }
+        .next-btn:hover { background: #2b6cb0; }
+        .finish-btn { background: var(--success-teal); }
+        .finish-btn:hover { background: #234e52; }
+        
+        #ending-page { display: none; animation: fadeIn 0.5s ease-out; padding: 40px 20px; }
+        #ending-page h2 { color: var(--success-teal); font-size: 2.5rem; margin-bottom: 15px; font-weight: 700; }
+        #ending-page p { font-size: 1.2rem; margin-bottom: 35px; color: #4a5568; font-weight: 500; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="quiz-container">
+        <h1>Useful Expressions - Vol.1 ☕</h1>
+        <div class="subtitle">Daily Life & Business Scenarios</div>
+        
+        <div id="dynamic-pages"></div>
+    </div>
+
+    <!-- エンディング画面 -->
+    <div id="ending-page">
+        <h2>Excellent Job! 🌟</h2>
+        <p>You have mastered all 11 practical expressions!</p>
+        <button class="nav-btn next-btn" onclick="location.reload()">Review Again</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            sitJp: "娘さんの歯医者の受付に到着しました。「午後2時に娘の歯科検診の予約が入っています」と伝える時。",
+            phrasesHtml: "My daughter has an appointment <span class='line-break'>for a dental checkup at 2 p.m.</span>",
+            phrasesSpeech: "My daughter has an appointment for a dental checkup at 2 p.m.",
+            phraseJp: "午後2時に娘の歯科検診の予約が入っています。"
+        },
+        {
+            sitJp: "ビジネスパートナーとディナーです。お店に到着して、「6時に予約している◯◯です」と言う時。",
+            phrasesHtml: "I have a reservation <span class='line-break'>at 6 p.m. under [Name].</span>",
+            phrasesSpeech: "I have a reservation at 6 p.m. under Name.",
+            phraseJp: "午後6時に〇〇（名前）で予約をしています。"
+        },
+        {
+            sitJp: "現地の友人に「来月、2週間くらい日本に帰るんだ」と伝える時。",
+            phrasesHtml: "We have a plan <span class='line-break'>to go back to Japan next month</span> <span class='line-break'>just for two weeks.</span>",
+            phrasesSpeech: "We have a plan to go back to Japan next month just for two weeks.",
+            phraseJp: "来月、2週間だけ日本に一時帰国する計画があります。"
+        },
+        {
+            sitJp: "娘さんが朝からコンコンと咳をしています。学校に「娘が風邪をひいているので、今日はお休みします」と伝える時。",
+            phrasesHtml: "My daughter has a cold, <span class='line-break'>so she will miss school today.</span>",
+            phrasesSpeech: "My daughter has a cold, so she will miss school today.",
+            phraseJp: "娘が風邪をひいているので、今日は学校を休みます。"
+        },
+        {
+            sitJp: "学校の送り迎えの時、仲良しのママ友に「今週末、もし時間があれば、うちの娘とプレイデイトしませんか？」と誘う時。",
+            phrasesHtml: "Do you have time <span class='line-break'>for a playdate this weekend?</span>",
+            phrasesSpeech: "Do you have time for a playdate this weekend?",
+            phraseJp: "今週末、プレイデイトをする時間はありますか？"
+        },
+        {
+            sitJp: "朝うっかり寝坊してしまい、朝食を抜いて家を飛び出しました。オフィスで「今朝は時間がなくて、朝ごはん食べられなかったよ〜」と言う時。",
+            phrasesHtml: "I didn't have time <span class='line-break'>to eat breakfast this morning.</span>",
+            phrasesSpeech: "I didn't have time to eat breakfast this morning.",
+            phraseJp: "今朝は朝ごはんを食べる時間がありませんでした。"
+        },
+        {
+            sitJp: "現地のミートアップに参加しました。自己紹介で「私は自分の会社（事業）を経営しています。ビューティーコンサルタントです」と言う時。",
+            phrasesHtml: "I have my own business. <span class='line-break'>I am a beauty consultant.</span>",
+            phrasesSpeech: "I have my own business. I am a beauty consultant.",
+            phraseJp: "自分の事業を行っています。ビューティーコンサルタントです。"
+        },
+        {
+            sitJp: "娘さんの学校の面談日です。職員室の受付で「今日、10時にグウェン先生と面談の約束があります」と伝える時。",
+            phrasesHtml: "I have a meeting <span class='line-break'>with Ms. Gwen at 10.</span>",
+            phrasesSpeech: "I have a meeting with Ms. Gwen at 10.",
+            phraseJp: "10時にグウェン先生とミーティングの約束があります。"
+        },
+        {
+            sitJp: "現地の役所や銀行で手続きの説明を受け、「何か質問はありますか？」と聞かれ、「はい、いくつか質問があります」と答える時。",
+            phrasesHtml: "Yes, I have a few questions.",
+            phrasesSpeech: "Yes, I have a few questions.",
+            phraseJp: "はい、いくつか質問があります。"
+        },
+        {
+            sitJp: "仕事が長引いてしまいました。家にいるナニーさんに「仕事が山積みなの。今夜は晩ご飯までに帰れないわ」とシンプルに伝える時。",
+            phrasesHtml: "I have a lot of work, <span class='line-break'>so I cannot come home for dinner.</span>",
+            phrasesSpeech: "I have a lot of work, so I cannot come home for dinner.",
+            phraseJp: "仕事が山積みなので、晩ご飯までに帰れません。"
+        },
+        {
+            sitJp: "友人から「ベトナム生活どう？」と聞かれ、「私にとっても娘にとっても、毎日が刺激的で素晴らしい経験だよ！」と伝える時。",
+            phrasesHtml: "Everything is new here! <span class='line-break'>It is a great experience</span> <span class='line-break'>for me and for my daughter.</span>",
+            phrasesSpeech: "Everything is new here! It is a great experience for me and for my daughter.",
+            phraseJp: "ここではすべてが新鮮です！私にとっても娘にとっても素晴らしい経験になっています。"
+        }
+    ];
+
+    let preferredVoice = null;
+
+    function loadVoices() {
+        if (!window.speechSynthesis) return;
+        const voices = window.speechSynthesis.getVoices();
+        preferredVoice = 
+            voices.find(v => v.lang === "en-US" && v.name.includes("Google US English")) ||
+            voices.find(v => v.lang === "en-US" && v.name.includes("Samantha")) ||
+            voices.find(v => v.lang.startsWith("en-US")) ||
+            voices.find(v => v.lang.startsWith("en"));
+    }
+    
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+        loadVoices();
+    }
+
+    function speakText(text) {
+        const synth = window.speechSynthesis;
+        if (!synth) return;
+        synth.cancel();
+        
+        const sanitizedText = text.replace(/["']/g, "").trim();
+        const uttr = new SpeechSynthesisUtterance(sanitizedText);
+        if (preferredVoice) uttr.voice = preferredVoice;
+        uttr.rate = 0.8;
+        uttr.pitch = 1.0; 
+        synth.speak(uttr);
+    }
+
+    const pagesContainer = document.getElementById('dynamic-pages');
+    quizData.forEach((data, index) => {
+        const pageNum = index + 1;
+        const isFirst = pageNum === 1;
+        const isLast = pageNum === quizData.length;
+
+        const pageHTML = `
+            <div class="quiz-page ${isFirst ? 'active' : ''}" id="p${pageNum}">
+                <span class="page-indicator">Scenario ${pageNum} / ${quizData.length}</span>
+                
+                <div class="situation-box">
+                    <div class="situation-title">Situation</div>
+                    <div class="situation-jp">${data.sitJp}</div>
+                </div>
+
+                <div class="question-prompt">What do you say?</div>
+                
+                <button class="check-btn" onclick="revealAnswer(${pageNum})">Check Answer</button>
+                
+                <div class="answer-box" id="answer-box-${pageNum}">
+                    <div class="answer-title">🎉 Key Phrase</div>
+                    <div class="answer-phrases">
+                        <div class="phrase-item">${data.phrasesHtml}</div>
+                    </div>
+                    <div class="answer-jp">${data.phraseJp}</div>
+                    <div style="margin-top: 20px;">
+                        <button class="speaker-btn" onclick="speakText(\`${data.phrasesSpeech}\`)">🔊 Listen</button>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <div class="btn-row">
+                        ${!isFirst ? `<button class="nav-btn prev-btn" onclick="prevPage(${pageNum})">Back</button>` : '<div style="width:140px"></div>'}
+                        ${!isLast ? `<button class="nav-btn next-btn" onclick="nextPage(${pageNum})">Next</button>` : `<button class="nav-btn finish-btn" onclick="showEnding()">Finish</button>`}
+                    </div>
+                </div>
+            </div>
+        `;
+        pagesContainer.insertAdjacentHTML('beforeend', pageHTML);
+    });
+
+    function revealAnswer(pageNum) {
+        const box = document.getElementById('answer-box-' + pageNum);
+        if (box && !box.classList.contains('show')) {
+            box.classList.add('show');
+        }
+    }
+
+    function nextPage(current) {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        document.getElementById('p' + current).classList.remove('active');
+        document.getElementById('p' + (current + 1)).classList.add('active');
+    }
+
+    function prevPage(current) {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        document.getElementById('p' + current).classList.remove('active');
+        document.getElementById('p' + (current - 1)).classList.add('active');
+    }
+
+    function showEnding() {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        document.getElementById('quiz-container').style.display = 'none';
+        document.getElementById('ending-page').style.display = 'block';
+    }
+</script>
+</body>
+</html>
